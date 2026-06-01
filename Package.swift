@@ -2,25 +2,25 @@
 import PackageDescription
 
 let package = Package(
-    name: "Inkwell",
+    name: "Mown",
     platforms: [
         .macOS(.v13),
     ],
     dependencies: [
-        // Apple's cmark-gfm fork — the same package the Inkwell.xcodeproj
+        // Apple's cmark-gfm fork — the same package the Mown.xcodeproj
         // uses, so both build paths resolve the same source tree.
         .package(url: "https://github.com/apple/swift-cmark.git", branch: "gfm"),
     ],
     targets: [
         .executableTarget(
-            name: "Inkwell",
+            name: "Mown",
             dependencies: [
                 .product(name: "cmark-gfm", package: "swift-cmark"),
                 .product(name: "cmark-gfm-extensions", package: "swift-cmark"),
             ],
             // Reuse the §6 directory layout instead of moving sources under
-            // SwiftPM's default Sources/Inkwell/.
-            path: "Inkwell",
+            // SwiftPM's default Sources/Mown/.
+            path: "Mown",
             // Resources are copied into the .app bundle by Scripts/build-app.sh
             // so PreviewTemplate.loadResource keeps using Bundle.main directly.
             // Info.plist is consumed by the bundling script, not SwiftPM.
@@ -30,8 +30,8 @@ let package = Package(
             ]
         ),
         .testTarget(
-            name: "InkwellTests",
-            dependencies: ["Inkwell"],
+            name: "MownTests",
+            dependencies: ["Mown"],
             path: "Tests"
         ),
     ]

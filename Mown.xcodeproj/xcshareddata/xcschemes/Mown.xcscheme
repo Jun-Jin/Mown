@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "1A000000000000000000E000"
-               BuildableName = "Inkwell.app"
-               BlueprintName = "Inkwell"
-               ReferencedContainer = "container:Inkwell.xcodeproj">
+               BuildableName = "Mown.app"
+               BlueprintName = "Mown"
+               ReferencedContainer = "container:Mown.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -33,9 +33,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "1A000000000000000000E100"
-               BuildableName = "InkwellTests.xctest"
-               BlueprintName = "InkwellTests"
-               ReferencedContainer = "container:Inkwell.xcodeproj">
+               BuildableName = "MownTests.xctest"
+               BlueprintName = "MownTests"
+               ReferencedContainer = "container:Mown.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -55,9 +55,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "1A000000000000000000E000"
-            BuildableName = "Inkwell.app"
-            BlueprintName = "Inkwell"
-            ReferencedContainer = "container:Inkwell.xcodeproj">
+            BuildableName = "Mown.app"
+            BlueprintName = "Mown"
+            ReferencedContainer = "container:Mown.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -72,9 +72,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "1A000000000000000000E000"
-            BuildableName = "Inkwell.app"
-            BlueprintName = "Inkwell"
-            ReferencedContainer = "container:Inkwell.xcodeproj">
+            BuildableName = "Mown.app"
+            BlueprintName = "Mown"
+            ReferencedContainer = "container:Mown.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

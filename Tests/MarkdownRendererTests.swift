@@ -1,5 +1,5 @@
 import XCTest
-@testable import Inkwell
+@testable import Mown
 
 final class MarkdownRendererTests: XCTestCase {
     private let renderer = MarkdownRenderer.shared

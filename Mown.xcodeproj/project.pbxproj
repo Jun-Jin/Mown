@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		1A0000000000000000000100 /* InkwellApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A000000000000000000C000 /* InkwellApp.swift */; };
+		1A0000000000000000000100 /* MownApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A000000000000000000C000 /* MownApp.swift */; };
 		1A0000000000000000000101 /* MarkdownDocument.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A000000000000000000C100 /* MarkdownDocument.swift */; };
 		1A0000000000000000000102 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A000000000000000000C200 /* ContentView.swift */; };
 		1A0000000000000000000103 /* EditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A000000000000000000C300 /* EditorView.swift */; };
@@ -32,12 +32,12 @@
 			containerPortal = 1A000000000000000000A000 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = 1A000000000000000000E000;
-			remoteInfo = Inkwell;
+			remoteInfo = Mown;
 		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		1A000000000000000000C000 /* InkwellApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InkwellApp.swift; sourceTree = "<group>"; };
+		1A000000000000000000C000 /* MownApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MownApp.swift; sourceTree = "<group>"; };
 		1A000000000000000000C100 /* MarkdownDocument.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownDocument.swift; sourceTree = "<group>"; };
 		1A000000000000000000C200 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		1A000000000000000000C300 /* EditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorView.swift; sourceTree = "<group>"; };
@@ -53,8 +53,8 @@
 		1A000000000000000000CC00 /* highlight.min.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = "highlight.min.js"; sourceTree = "<group>"; };
 		1A000000000000000000CD00 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		1A000000000000000000CE00 /* MarkdownRendererTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownRendererTests.swift; sourceTree = "<group>"; };
-		1A000000000000000000D000 /* Inkwell.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Inkwell.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		1A000000000000000000D100 /* InkwellTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = InkwellTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		1A000000000000000000D000 /* Mown.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Mown.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		1A000000000000000000D100 /* MownTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MownTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -80,7 +80,7 @@
 		1A000000000000000000B000 /* Main */ = {
 			isa = PBXGroup;
 			children = (
-				1A000000000000000000B200 /* Inkwell */,
+				1A000000000000000000B200 /* Mown */,
 				1A000000000000000000B700 /* Tests */,
 				1A000000000000000000B100 /* Products */,
 			);
@@ -89,23 +89,23 @@
 		1A000000000000000000B100 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				1A000000000000000000D000 /* Inkwell.app */,
-				1A000000000000000000D100 /* InkwellTests.xctest */,
+				1A000000000000000000D000 /* Mown.app */,
+				1A000000000000000000D100 /* MownTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		1A000000000000000000B200 /* Inkwell */ = {
+		1A000000000000000000B200 /* Mown */ = {
 			isa = PBXGroup;
 			children = (
-				1A000000000000000000C000 /* InkwellApp.swift */,
+				1A000000000000000000C000 /* MownApp.swift */,
 				1A000000000000000000B300 /* Document */,
 				1A000000000000000000B400 /* Views */,
 				1A000000000000000000B500 /* Rendering */,
 				1A000000000000000000B600 /* Resources */,
 				1A000000000000000000CD00 /* Info.plist */,
 			);
-			path = Inkwell;
+			path = Mown;
 			sourceTree = "<group>";
 		};
 		1A000000000000000000B300 /* Document */ = {
@@ -160,9 +160,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		1A000000000000000000E000 /* Inkwell */ = {
+		1A000000000000000000E000 /* Mown */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 1A000000000000000000E200 /* Build configuration list for PBXNativeTarget "Inkwell" */;
+			buildConfigurationList = 1A000000000000000000E200 /* Build configuration list for PBXNativeTarget "Mown" */;
 			buildPhases = (
 				1A000000000000000000F000 /* Sources */,
 				1A000000000000000000F100 /* Frameworks */,
@@ -172,18 +172,18 @@
 			);
 			dependencies = (
 			);
-			name = Inkwell;
+			name = Mown;
 			packageProductDependencies = (
 				1A0000000000000000000141 /* cmark-gfm */,
 				1A0000000000000000000142 /* cmark-gfm-extensions */,
 			);
-			productName = Inkwell;
-			productReference = 1A000000000000000000D000 /* Inkwell.app */;
+			productName = Mown;
+			productReference = 1A000000000000000000D000 /* Mown.app */;
 			productType = "com.apple.product-type.application";
 		};
-		1A000000000000000000E100 /* InkwellTests */ = {
+		1A000000000000000000E100 /* MownTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 1A000000000000000000E500 /* Build configuration list for PBXNativeTarget "InkwellTests" */;
+			buildConfigurationList = 1A000000000000000000E500 /* Build configuration list for PBXNativeTarget "MownTests" */;
 			buildPhases = (
 				1A000000000000000000F300 /* Sources */,
 				1A000000000000000000F400 /* Frameworks */,
@@ -193,9 +193,9 @@
 			dependencies = (
 				1A0000000000000000000150 /* PBXTargetDependency */,
 			);
-			name = InkwellTests;
-			productName = InkwellTests;
-			productReference = 1A000000000000000000D100 /* InkwellTests.xctest */;
+			name = MownTests;
+			productName = MownTests;
+			productReference = 1A000000000000000000D100 /* MownTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
@@ -217,7 +217,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 1A000000000000000000A100 /* Build configuration list for PBXProject "Inkwell" */;
+			buildConfigurationList = 1A000000000000000000A100 /* Build configuration list for PBXProject "Mown" */;
 			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -233,8 +233,8 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				1A000000000000000000E000 /* Inkwell */,
-				1A000000000000000000E100 /* InkwellTests */,
+				1A000000000000000000E000 /* Mown */,
+				1A000000000000000000E100 /* MownTests */,
 			);
 		};
 /* End PBXProject section */
@@ -259,7 +259,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1A0000000000000000000100 /* InkwellApp.swift in Sources */,
+				1A0000000000000000000100 /* MownApp.swift in Sources */,
 				1A0000000000000000000101 /* MarkdownDocument.swift in Sources */,
 				1A0000000000000000000102 /* ContentView.swift in Sources */,
 				1A0000000000000000000103 /* EditorView.swift in Sources */,
@@ -284,7 +284,7 @@
 /* Begin PBXTargetDependency section */
 		1A0000000000000000000150 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 1A000000000000000000E000 /* Inkwell */;
+			target = 1A000000000000000000E000 /* Mown */;
 			targetProxy = 1A0000000000000000000151 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -422,14 +422,14 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
-				INFOPLIST_FILE = Inkwell/Info.plist;
+				INFOPLIST_FILE = Mown/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 13.0;
 				MARKETING_VERSION = 0.1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.inkwell.Inkwell;
+				PRODUCT_BUNDLE_IDENTIFIER = com.mown.Mown;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.9;
@@ -448,14 +448,14 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
-				INFOPLIST_FILE = Inkwell/Info.plist;
+				INFOPLIST_FILE = Mown/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 13.0;
 				MARKETING_VERSION = 0.1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.inkwell.Inkwell;
+				PRODUCT_BUNDLE_IDENTIFIER = com.mown.Mown;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.9;
@@ -472,11 +472,11 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 13.0;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.inkwell.InkwellTests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.mown.MownTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.9;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Inkwell.app/Contents/MacOS/Inkwell";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Mown.app/Contents/MacOS/Mown";
 			};
 			name = Debug;
 		};
@@ -490,18 +490,18 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 13.0;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.inkwell.InkwellTests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.mown.MownTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.9;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Inkwell.app/Contents/MacOS/Inkwell";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Mown.app/Contents/MacOS/Mown";
 			};
 			name = Release;
 		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		1A000000000000000000A100 /* Build configuration list for PBXProject "Inkwell" */ = {
+		1A000000000000000000A100 /* Build configuration list for PBXProject "Mown" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				1A000000000000000000A200 /* Debug */,
@@ -510,7 +510,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		1A000000000000000000E200 /* Build configuration list for PBXNativeTarget "Inkwell" */ = {
+		1A000000000000000000E200 /* Build configuration list for PBXNativeTarget "Mown" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				1A000000000000000000E300 /* Debug */,
@@ -519,7 +519,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		1A000000000000000000E500 /* Build configuration list for PBXNativeTarget "InkwellTests" */ = {
+		1A000000000000000000E500 /* Build configuration list for PBXNativeTarget "MownTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				1A000000000000000000E600 /* Debug */,

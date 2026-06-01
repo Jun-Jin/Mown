@@ -1,4 +1,4 @@
-# Inkwell — Specification
+# Mown — Specification
 
 > Working title — final name TBD.
 
@@ -97,7 +97,7 @@ Rationale: `DocumentGroup` eliminates almost all of the file-handling code. `NST
 
 ```
 ┌────────────────────────────────────────────────────────────┐
-│  InkwellApp  (@main, DocumentGroup<MarkdownDocument>)      │
+│  MownApp  (@main, DocumentGroup<MarkdownDocument>)      │
 │                                                            │
 │  ┌────────────────────────────────────────────────────┐   │
 │  │  ContentView                                       │   │
@@ -124,10 +124,10 @@ Rationale: `DocumentGroup` eliminates almost all of the file-handling code. `NST
 ### Project layout
 
 ```
-Inkwell/
-├── Inkwell.xcodeproj
-├── Inkwell/
-│   ├── InkwellApp.swift              // @main
+Mown/
+├── Mown.xcodeproj
+├── Mown/
+│   ├── MownApp.swift              // @main
 │   ├── Document/
 │   │   └── MarkdownDocument.swift    // FileDocument
 │   ├── Views/
@@ -164,7 +164,7 @@ Most of these are provided automatically by `DocumentGroup` + the standard Edit 
 ## 8. Build & Distribution
 
 - Develop in Xcode; `⌘R` to run.
-- `xcodebuild -scheme Inkwell -configuration Release` for archive.
+- `xcodebuild -scheme Mown -configuration Release` for archive.
 - MVP: unsigned `.app` for personal use.
 - Post-MVP: Developer ID signing + notarization for distribution outside the App Store.
 - App Store submission is **not** in scope for MVP.
