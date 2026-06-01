@@ -2,6 +2,9 @@ import SwiftUI
 
 struct ContentView: View {
     @Binding var document: MarkdownDocument
+    /// File on disk backing this window, if any. Drives "opened files become
+    /// tabs" (see WindowAccessor); nil for untitled ⌘N/⌘T documents.
+    var fileURL: URL? = nil
     @EnvironmentObject private var settings: AppSettings
     @Environment(\.colorScheme) private var colorScheme
     @State private var viewMode: ViewMode = .edit
@@ -16,7 +19,7 @@ struct ContentView: View {
     var body: some View {
         layout
             .frame(minWidth: 600, minHeight: 400)
-            .background(WindowAccessor())
+            .background(WindowAccessor(isFileBacked: fileURL != nil))
             .toolbar {
                 ToolbarItem(placement: .principal) {
                     ViewModePicker(mode: $viewMode)
