@@ -2,8 +2,16 @@ import SwiftUI
 
 struct ContentView: View {
     @Binding var document: MarkdownDocument
+    @EnvironmentObject private var settings: AppSettings
+    @Environment(\.colorScheme) private var colorScheme
     @State private var viewMode: ViewMode = .edit
     @State private var renderedHTML: String = ""
+
+    /// Resolves the preview's effective light/dark, deferring to the live
+    /// system appearance when the user's choice is `.system`.
+    private var previewIsDark: Bool {
+        settings.previewTheme.isDark(whenSystem: colorScheme == .dark)
+    }
 
     var body: some View {
         layout
@@ -26,14 +34,14 @@ struct ContentView: View {
     private var layout: some View {
         switch viewMode {
         case .edit:
-            EditorView(text: $document.text)
+            EditorView(text: $document.text, theme: settings.editorTheme)
         case .preview:
-            PreviewView(html: renderedHTML)
+            PreviewView(html: renderedHTML, isDark: previewIsDark)
         case .split:
             HSplitView {
-                EditorView(text: $document.text)
+                EditorView(text: $document.text, theme: settings.editorTheme)
                     .frame(minWidth: 240)
-                PreviewView(html: renderedHTML)
+                PreviewView(html: renderedHTML, isDark: previewIsDark)
                     .frame(minWidth: 240)
             }
         }

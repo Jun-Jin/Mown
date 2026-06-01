@@ -17,6 +17,9 @@
 		1A0000000000000000000106 /* MarkdownRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A000000000000000000C600 /* MarkdownRenderer.swift */; };
 		1A0000000000000000000107 /* PreviewTemplate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A000000000000000000C700 /* PreviewTemplate.swift */; };
 		1A0000000000000000000108 /* MarkdownSyntaxHighlighter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A000000000000000000C5A0 /* MarkdownSyntaxHighlighter.swift */; };
+		1A000000000000000000010A /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A000000000000000000C5C0 /* AppSettings.swift */; };
+		1A000000000000000000010B /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A000000000000000000C5D0 /* SettingsView.swift */; };
+		1A000000000000000000010C /* ShortcutRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A000000000000000000C5E0 /* ShortcutRecorder.swift */; };
 		1A0000000000000000000110 /* preview.css in Resources */ = {isa = PBXBuildFile; fileRef = 1A000000000000000000C800 /* preview.css */; };
 		1A0000000000000000000111 /* preview-dark.css in Resources */ = {isa = PBXBuildFile; fileRef = 1A000000000000000000C900 /* preview-dark.css */; };
 		1A0000000000000000000112 /* highlight-light.css in Resources */ = {isa = PBXBuildFile; fileRef = 1A000000000000000000CA00 /* highlight-light.css */; };
@@ -46,6 +49,9 @@
 		1A000000000000000000C400 /* PreviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewView.swift; sourceTree = "<group>"; };
 		1A000000000000000000C500 /* ViewMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewMode.swift; sourceTree = "<group>"; };
 		1A000000000000000000C5A0 /* MarkdownSyntaxHighlighter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownSyntaxHighlighter.swift; sourceTree = "<group>"; };
+		1A000000000000000000C5C0 /* AppSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettings.swift; sourceTree = "<group>"; };
+		1A000000000000000000C5D0 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		1A000000000000000000C5E0 /* ShortcutRecorder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShortcutRecorder.swift; sourceTree = "<group>"; };
 		1A000000000000000000C600 /* MarkdownRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownRenderer.swift; sourceTree = "<group>"; };
 		1A000000000000000000C700 /* PreviewTemplate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewTemplate.swift; sourceTree = "<group>"; };
 		1A000000000000000000C800 /* preview.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = preview.css; sourceTree = "<group>"; };
@@ -105,10 +111,21 @@
 				1A000000000000000000B300 /* Document */,
 				1A000000000000000000B400 /* Views */,
 				1A000000000000000000B500 /* Rendering */,
+				1A000000000000000000B800 /* Settings */,
 				1A000000000000000000B600 /* Resources */,
 				1A000000000000000000CD00 /* Info.plist */,
 			);
 			path = Mown;
+			sourceTree = "<group>";
+		};
+		1A000000000000000000B800 /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				1A000000000000000000C5C0 /* AppSettings.swift */,
+				1A000000000000000000C5D0 /* SettingsView.swift */,
+				1A000000000000000000C5E0 /* ShortcutRecorder.swift */,
+			);
+			path = Settings;
 			sourceTree = "<group>";
 		};
 		1A000000000000000000B300 /* Document */ = {
@@ -272,6 +289,9 @@
 				1A0000000000000000000106 /* MarkdownRenderer.swift in Sources */,
 				1A0000000000000000000107 /* PreviewTemplate.swift in Sources */,
 				1A0000000000000000000108 /* MarkdownSyntaxHighlighter.swift in Sources */,
+				1A000000000000000000010A /* AppSettings.swift in Sources */,
+				1A000000000000000000010B /* SettingsView.swift in Sources */,
+				1A000000000000000000010C /* ShortcutRecorder.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

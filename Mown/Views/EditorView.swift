@@ -3,6 +3,10 @@ import AppKit
 
 struct EditorView: NSViewRepresentable {
     @Binding var text: String
+    /// Editor color scheme. `.system` inherits; `.light`/`.dark` pin the
+    /// editor's appearance so its background and the highlighter's dynamic
+    /// `NSColor`s re-resolve against the chosen scheme.
+    var theme: AppTheme = .system
 
     func makeCoordinator() -> Coordinator { Coordinator(self) }
 
@@ -16,6 +20,8 @@ struct EditorView: NSViewRepresentable {
         guard let textView = scrollView.documentView as? NSTextView else {
             return scrollView
         }
+
+        applyTheme(to: scrollView, textView: textView)
 
         textView.delegate = context.coordinator
         textView.isRichText = false
@@ -68,6 +74,7 @@ struct EditorView: NSViewRepresentable {
 
     func updateNSView(_ scrollView: NSScrollView, context: Context) {
         guard let textView = scrollView.documentView as? NSTextView else { return }
+        applyTheme(to: scrollView, textView: textView)
         if textView.string != text {
             let ranges = textView.selectedRanges
             textView.string = text
@@ -81,6 +88,15 @@ struct EditorView: NSViewRepresentable {
             }
             textView.selectedRanges = clamped.isEmpty ? [NSValue(range: NSRange(location: len, length: 0))] : clamped
         }
+    }
+
+    /// Pins (or releases) the editor's appearance to match `theme`. The text
+    /// view's background and the highlighter's dynamic colors resolve against
+    /// the view's effective appearance, so AppKit repaints them on change.
+    private func applyTheme(to scrollView: NSScrollView, textView: NSTextView) {
+        let appearance = theme.nsAppearance
+        scrollView.appearance = appearance
+        textView.appearance = appearance
     }
 
     final class Coordinator: NSObject, NSTextViewDelegate {

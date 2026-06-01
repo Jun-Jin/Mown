@@ -4,6 +4,10 @@ import AppKit
 
 struct PreviewView: NSViewRepresentable {
     let html: String
+    /// Resolved by `ContentView` from the user's "View Theme" setting and the
+    /// live system appearance — drives both the preview CSS and the web view's
+    /// own chrome (scrollbars, form controls).
+    let isDark: Bool
 
     func makeNSView(context: Context) -> WKWebView {
         let config = WKWebViewConfiguration()
@@ -21,7 +25,7 @@ struct PreviewView: NSViewRepresentable {
     }
 
     func updateNSView(_ webView: WKWebView, context: Context) {
-        let isDark = NSApp.effectiveAppearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
+        webView.appearance = NSAppearance(named: isDark ? .darkAqua : .aqua)
         let full = PreviewTemplate.wrap(bodyHTML: html, isDark: isDark)
         webView.loadHTMLString(full, baseURL: Bundle.main.resourceURL)
     }
