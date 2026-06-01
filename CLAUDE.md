@@ -17,3 +17,6 @@
 
 ## Build
 - Xcode builds into DerivedData, not the repo. After every build, copy the build product over `./Mown.app` so `open Mown.app` runs the latest binary.
+
+## Project Structure
+- The Xcode project uses synchronized folders (`PBXFileSystemSynchronizedRootGroup`, objectVersion 77). New files added to `Mown/` or `Tests/` on disk are picked up automatically — do NOT hand-edit `project.pbxproj` to register them.

@@ -3,29 +3,10 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 56;
+	objectVersion = 77;
 	objects = {
 
 /* Begin PBXBuildFile section */
-		1A0000000000000000000100 /* MownApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A000000000000000000C000 /* MownApp.swift */; };
-		1A0000000000000000000109 /* WindowTabbing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A000000000000000000C5B0 /* WindowTabbing.swift */; };
-		1A0000000000000000000101 /* MarkdownDocument.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A000000000000000000C100 /* MarkdownDocument.swift */; };
-		1A0000000000000000000102 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A000000000000000000C200 /* ContentView.swift */; };
-		1A0000000000000000000103 /* EditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A000000000000000000C300 /* EditorView.swift */; };
-		1A0000000000000000000104 /* PreviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A000000000000000000C400 /* PreviewView.swift */; };
-		1A0000000000000000000105 /* ViewMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A000000000000000000C500 /* ViewMode.swift */; };
-		1A0000000000000000000106 /* MarkdownRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A000000000000000000C600 /* MarkdownRenderer.swift */; };
-		1A0000000000000000000107 /* PreviewTemplate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A000000000000000000C700 /* PreviewTemplate.swift */; };
-		1A0000000000000000000108 /* MarkdownSyntaxHighlighter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A000000000000000000C5A0 /* MarkdownSyntaxHighlighter.swift */; };
-		1A000000000000000000010A /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A000000000000000000C5C0 /* AppSettings.swift */; };
-		1A000000000000000000010B /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A000000000000000000C5D0 /* SettingsView.swift */; };
-		1A000000000000000000010C /* ShortcutRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A000000000000000000C5E0 /* ShortcutRecorder.swift */; };
-		1A0000000000000000000110 /* preview.css in Resources */ = {isa = PBXBuildFile; fileRef = 1A000000000000000000C800 /* preview.css */; };
-		1A0000000000000000000111 /* preview-dark.css in Resources */ = {isa = PBXBuildFile; fileRef = 1A000000000000000000C900 /* preview-dark.css */; };
-		1A0000000000000000000112 /* highlight-light.css in Resources */ = {isa = PBXBuildFile; fileRef = 1A000000000000000000CA00 /* highlight-light.css */; };
-		1A0000000000000000000113 /* highlight-dark.css in Resources */ = {isa = PBXBuildFile; fileRef = 1A000000000000000000CB00 /* highlight-dark.css */; };
-		1A0000000000000000000114 /* highlight.min.js in Resources */ = {isa = PBXBuildFile; fileRef = 1A000000000000000000CC00 /* highlight.min.js */; };
-		1A0000000000000000000120 /* MarkdownRendererTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A000000000000000000CE00 /* MarkdownRendererTests.swift */; };
 		1A0000000000000000000130 /* cmark-gfm in Frameworks */ = {isa = PBXBuildFile; productRef = 1A0000000000000000000141 /* cmark-gfm */; };
 		1A0000000000000000000131 /* cmark-gfm-extensions in Frameworks */ = {isa = PBXBuildFile; productRef = 1A0000000000000000000142 /* cmark-gfm-extensions */; };
 /* End PBXBuildFile section */
@@ -41,29 +22,22 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		1A000000000000000000C000 /* MownApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MownApp.swift; sourceTree = "<group>"; };
-		1A000000000000000000C5B0 /* WindowTabbing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowTabbing.swift; sourceTree = "<group>"; };
-		1A000000000000000000C100 /* MarkdownDocument.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownDocument.swift; sourceTree = "<group>"; };
-		1A000000000000000000C200 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
-		1A000000000000000000C300 /* EditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorView.swift; sourceTree = "<group>"; };
-		1A000000000000000000C400 /* PreviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewView.swift; sourceTree = "<group>"; };
-		1A000000000000000000C500 /* ViewMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewMode.swift; sourceTree = "<group>"; };
-		1A000000000000000000C5A0 /* MarkdownSyntaxHighlighter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownSyntaxHighlighter.swift; sourceTree = "<group>"; };
-		1A000000000000000000C5C0 /* AppSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettings.swift; sourceTree = "<group>"; };
-		1A000000000000000000C5D0 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
-		1A000000000000000000C5E0 /* ShortcutRecorder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShortcutRecorder.swift; sourceTree = "<group>"; };
-		1A000000000000000000C600 /* MarkdownRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownRenderer.swift; sourceTree = "<group>"; };
-		1A000000000000000000C700 /* PreviewTemplate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewTemplate.swift; sourceTree = "<group>"; };
-		1A000000000000000000C800 /* preview.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = preview.css; sourceTree = "<group>"; };
-		1A000000000000000000C900 /* preview-dark.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "preview-dark.css"; sourceTree = "<group>"; };
-		1A000000000000000000CA00 /* highlight-light.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "highlight-light.css"; sourceTree = "<group>"; };
-		1A000000000000000000CB00 /* highlight-dark.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "highlight-dark.css"; sourceTree = "<group>"; };
-		1A000000000000000000CC00 /* highlight.min.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = "highlight.min.js"; sourceTree = "<group>"; };
-		1A000000000000000000CD00 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		1A000000000000000000CE00 /* MarkdownRendererTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownRendererTests.swift; sourceTree = "<group>"; };
 		1A000000000000000000D000 /* Mown.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Mown.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1A000000000000000000D100 /* MownTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MownTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		1A000000000000000000B200 /* Mown */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Mown;
+			sourceTree = "<group>";
+		};
+		1A000000000000000000B700 /* Tests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Tests;
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		1A000000000000000000F100 /* Frameworks */ = {
@@ -103,80 +77,6 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		1A000000000000000000B200 /* Mown */ = {
-			isa = PBXGroup;
-			children = (
-				1A000000000000000000C000 /* MownApp.swift */,
-				1A000000000000000000C5B0 /* WindowTabbing.swift */,
-				1A000000000000000000B300 /* Document */,
-				1A000000000000000000B400 /* Views */,
-				1A000000000000000000B500 /* Rendering */,
-				1A000000000000000000B800 /* Settings */,
-				1A000000000000000000B600 /* Resources */,
-				1A000000000000000000CD00 /* Info.plist */,
-			);
-			path = Mown;
-			sourceTree = "<group>";
-		};
-		1A000000000000000000B800 /* Settings */ = {
-			isa = PBXGroup;
-			children = (
-				1A000000000000000000C5C0 /* AppSettings.swift */,
-				1A000000000000000000C5D0 /* SettingsView.swift */,
-				1A000000000000000000C5E0 /* ShortcutRecorder.swift */,
-			);
-			path = Settings;
-			sourceTree = "<group>";
-		};
-		1A000000000000000000B300 /* Document */ = {
-			isa = PBXGroup;
-			children = (
-				1A000000000000000000C100 /* MarkdownDocument.swift */,
-			);
-			path = Document;
-			sourceTree = "<group>";
-		};
-		1A000000000000000000B400 /* Views */ = {
-			isa = PBXGroup;
-			children = (
-				1A000000000000000000C200 /* ContentView.swift */,
-				1A000000000000000000C300 /* EditorView.swift */,
-				1A000000000000000000C400 /* PreviewView.swift */,
-				1A000000000000000000C500 /* ViewMode.swift */,
-				1A000000000000000000C5A0 /* MarkdownSyntaxHighlighter.swift */,
-			);
-			path = Views;
-			sourceTree = "<group>";
-		};
-		1A000000000000000000B500 /* Rendering */ = {
-			isa = PBXGroup;
-			children = (
-				1A000000000000000000C600 /* MarkdownRenderer.swift */,
-				1A000000000000000000C700 /* PreviewTemplate.swift */,
-			);
-			path = Rendering;
-			sourceTree = "<group>";
-		};
-		1A000000000000000000B600 /* Resources */ = {
-			isa = PBXGroup;
-			children = (
-				1A000000000000000000C800 /* preview.css */,
-				1A000000000000000000C900 /* preview-dark.css */,
-				1A000000000000000000CA00 /* highlight-light.css */,
-				1A000000000000000000CB00 /* highlight-dark.css */,
-				1A000000000000000000CC00 /* highlight.min.js */,
-			);
-			path = Resources;
-			sourceTree = "<group>";
-		};
-		1A000000000000000000B700 /* Tests */ = {
-			isa = PBXGroup;
-			children = (
-				1A000000000000000000CE00 /* MarkdownRendererTests.swift */,
-			);
-			path = Tests;
-			sourceTree = "<group>";
-		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -191,6 +91,9 @@
 			buildRules = (
 			);
 			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				1A000000000000000000B200 /* Mown */,
 			);
 			name = Mown;
 			packageProductDependencies = (
@@ -212,6 +115,9 @@
 			);
 			dependencies = (
 				1A0000000000000000000150 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				1A000000000000000000B700 /* Tests */,
 			);
 			name = MownTests;
 			productName = MownTests;
@@ -264,11 +170,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1A0000000000000000000110 /* preview.css in Resources */,
-				1A0000000000000000000111 /* preview-dark.css in Resources */,
-				1A0000000000000000000112 /* highlight-light.css in Resources */,
-				1A0000000000000000000113 /* highlight-dark.css in Resources */,
-				1A0000000000000000000114 /* highlight.min.js in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -279,19 +180,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1A0000000000000000000100 /* MownApp.swift in Sources */,
-				1A0000000000000000000109 /* WindowTabbing.swift in Sources */,
-				1A0000000000000000000101 /* MarkdownDocument.swift in Sources */,
-				1A0000000000000000000102 /* ContentView.swift in Sources */,
-				1A0000000000000000000103 /* EditorView.swift in Sources */,
-				1A0000000000000000000104 /* PreviewView.swift in Sources */,
-				1A0000000000000000000105 /* ViewMode.swift in Sources */,
-				1A0000000000000000000106 /* MarkdownRenderer.swift in Sources */,
-				1A0000000000000000000107 /* PreviewTemplate.swift in Sources */,
-				1A0000000000000000000108 /* MarkdownSyntaxHighlighter.swift in Sources */,
-				1A000000000000000000010A /* AppSettings.swift in Sources */,
-				1A000000000000000000010B /* SettingsView.swift in Sources */,
-				1A000000000000000000010C /* ShortcutRecorder.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -299,7 +187,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1A0000000000000000000120 /* MarkdownRendererTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
