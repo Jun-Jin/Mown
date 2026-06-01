@@ -8,6 +8,7 @@ struct ContentView: View {
     var body: some View {
         layout
             .frame(minWidth: 600, minHeight: 400)
+            .background(WindowAccessor())
             .toolbar {
                 ToolbarItem(placement: .principal) {
                     ViewModePicker(mode: $viewMode)

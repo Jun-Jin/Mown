@@ -14,3 +14,6 @@
 
 ## Implementation Standards
 - Reference context7 and always implement according to the latest standard language specifications.
+
+## Build
+- Xcode builds into DerivedData, not the repo. After every build, copy the build product over `./Mown.app` so `open Mown.app` runs the latest binary.

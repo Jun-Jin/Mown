@@ -2,11 +2,19 @@ import SwiftUI
 
 @main
 struct MownApp: App {
+    @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
+
     var body: some Scene {
         DocumentGroup(newDocument: MarkdownDocument()) { file in
             ContentView(document: file.$document)
         }
         .commands {
+            // ⌘N (File ▸ New) stays as DocumentGroup's built-in "new window".
+            // ⌘T adds a tab to the current window instead.
+            CommandGroup(after: .newItem) {
+                Button("New Tab") { DocumentTabbing.newTab() }
+                    .keyboardShortcut("t", modifiers: .command)
+            }
             CommandGroup(after: .toolbar) {
                 CycleViewModeMenuItem()
             }

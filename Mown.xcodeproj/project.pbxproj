@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		1A0000000000000000000100 /* MownApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A000000000000000000C000 /* MownApp.swift */; };
+		1A0000000000000000000109 /* WindowTabbing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A000000000000000000C5B0 /* WindowTabbing.swift */; };
 		1A0000000000000000000101 /* MarkdownDocument.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A000000000000000000C100 /* MarkdownDocument.swift */; };
 		1A0000000000000000000102 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A000000000000000000C200 /* ContentView.swift */; };
 		1A0000000000000000000103 /* EditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A000000000000000000C300 /* EditorView.swift */; };
@@ -38,6 +39,7 @@
 
 /* Begin PBXFileReference section */
 		1A000000000000000000C000 /* MownApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MownApp.swift; sourceTree = "<group>"; };
+		1A000000000000000000C5B0 /* WindowTabbing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowTabbing.swift; sourceTree = "<group>"; };
 		1A000000000000000000C100 /* MarkdownDocument.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownDocument.swift; sourceTree = "<group>"; };
 		1A000000000000000000C200 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		1A000000000000000000C300 /* EditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorView.swift; sourceTree = "<group>"; };
@@ -99,6 +101,7 @@
 			isa = PBXGroup;
 			children = (
 				1A000000000000000000C000 /* MownApp.swift */,
+				1A000000000000000000C5B0 /* WindowTabbing.swift */,
 				1A000000000000000000B300 /* Document */,
 				1A000000000000000000B400 /* Views */,
 				1A000000000000000000B500 /* Rendering */,
@@ -260,6 +263,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				1A0000000000000000000100 /* MownApp.swift in Sources */,
+				1A0000000000000000000109 /* WindowTabbing.swift in Sources */,
 				1A0000000000000000000101 /* MarkdownDocument.swift in Sources */,
 				1A0000000000000000000102 /* ContentView.swift in Sources */,
 				1A0000000000000000000103 /* EditorView.swift in Sources */,
