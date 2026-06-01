@@ -20,3 +20,6 @@
 
 ## Project Structure
 - The Xcode project uses synchronized folders (`PBXFileSystemSynchronizedRootGroup`, objectVersion 77). New files added to `Mown/` or `Tests/` on disk are picked up automatically — do NOT hand-edit `project.pbxproj` to register them.
+
+## CLI
+- `bin/mown` opens Markdown files in Mown (as tabs). Install on PATH with: `ln -sf "$PWD/bin/mown" /opt/homebrew/bin/mown`. The symlink is machine-local (not in the repo), so re-run it after a fresh clone.

@@ -1,0 +1,90 @@
+#!/usr/bin/env bash
+#
+# mown — open Markdown files in the Mown app from the command line.
+#
+# Files open as tabs of the current Mown window: Mown tabs every file-backed
+# open (File ▸ Open, Finder, and this CLI all take the same path), so a second
+# `mown FILE` joins the window the first one created instead of spawning a new
+# one. With no arguments it just launches / activates Mown.
+#
+# Usage:
+#   mown                 # launch / focus Mown
+#   mown notes.md        # open notes.md (created empty if it doesn't exist)
+#   mown a.md b.md       # open several files (each as a tab)
+#
+# App resolution order:
+#   1. $MOWN_APP (if it points at an .app bundle)
+#   2. /Applications/Mown.app
+#   3. the repo build sitting next to this script (../Mown.app)
+#   4. the LaunchServices-registered bundle id (com.mown.Mown)
+set -euo pipefail
+
+BUNDLE_ID="com.mown.Mown"
+
+usage() { sed -n '3,16p' "$0" | sed 's/^# \{0,1\}//'; }
+
+case "${1:-}" in
+    -h|--help) usage; exit 0 ;;
+esac
+
+# Resolve this script's real location, following symlinks, so a symlinked
+# `mown` on PATH can still find the repo build beside the real script.
+resolve_self() {
+    local src="${BASH_SOURCE[0]}" dir
+    while [[ -L "$src" ]]; do
+        dir="$(cd -P "$(dirname "$src")" && pwd)"
+        src="$(readlink "$src")"
+        [[ "$src" != /* ]] && src="$dir/$src"
+    done
+    cd -P "$(dirname "$src")" && pwd
+}
+
+resolve_app() {
+    if [[ -n "${MOWN_APP:-}" && -d "$MOWN_APP" ]]; then
+        printf '%s' "$MOWN_APP"; return
+    fi
+    if [[ -d "/Applications/Mown.app" ]]; then
+        printf '%s' "/Applications/Mown.app"; return
+    fi
+    local repo_app; repo_app="$(resolve_self)/../Mown.app"
+    if [[ -d "$repo_app" ]]; then
+        ( cd -P "$repo_app" && pwd ); return
+    fi
+    printf ''  # signal: fall back to the bundle id
+}
+
+APP="$(resolve_app)"
+if [[ -n "$APP" ]]; then
+    open_target=(-a "$APP")
+else
+    open_target=(-b "$BUNDLE_ID")
+fi
+
+# No files: just launch / activate Mown.
+if [[ $# -eq 0 ]]; then
+    open "${open_target[@]}"
+    exit 0
+fi
+
+files=()
+for arg in "$@"; do
+    if [[ -d "$arg" ]]; then
+        echo "mown: '$arg' is a directory" >&2
+        exit 1
+    fi
+    if [[ ! -e "$arg" ]]; then
+        if ! : > "$arg" 2>/dev/null; then
+            echo "mown: cannot create '$arg'" >&2
+            exit 1
+        fi
+        echo "mown: created $arg" >&2
+    fi
+    # Pass an absolute path so it's unambiguous regardless of how `open` resolves.
+    if [[ "$arg" = /* ]]; then
+        files+=("$arg")
+    else
+        files+=("$PWD/$arg")
+    fi
+done
+
+open "${open_target[@]}" "${files[@]}"
