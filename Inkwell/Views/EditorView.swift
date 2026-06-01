@@ -1,0 +1,101 @@
+import SwiftUI
+import AppKit
+
+struct EditorView: NSViewRepresentable {
+    @Binding var text: String
+
+    func makeCoordinator() -> Coordinator { Coordinator(self) }
+
+    func makeNSView(context: Context) -> NSScrollView {
+        let scrollView = NSTextView.scrollableTextView()
+        scrollView.hasVerticalScroller = true
+        scrollView.hasHorizontalScroller = false
+        scrollView.autohidesScrollers = true
+        scrollView.borderType = .noBorder
+
+        guard let textView = scrollView.documentView as? NSTextView else {
+            return scrollView
+        }
+
+        textView.delegate = context.coordinator
+        textView.isRichText = false
+        textView.allowsUndo = true
+        let editorFont = NSFont.monospacedSystemFont(ofSize: NSFont.systemFontSize, weight: .regular)
+        textView.font = editorFont
+        textView.textContainerInset = NSSize(width: 16, height: 16)
+
+        // Install the Markdown highlighter as the storage's delegate. The
+        // coordinator retains it; NSTextStorage holds the delegate weakly.
+        let highlighter = MarkdownSyntaxHighlighter(baseFont: editorFont)
+        context.coordinator.highlighter = highlighter
+        textView.textStorage?.delegate = highlighter
+
+        // Disable substitutions that interfere with Markdown source.
+        textView.isAutomaticQuoteSubstitutionEnabled = false
+        textView.isAutomaticDashSubstitutionEnabled = false
+        textView.isAutomaticTextReplacementEnabled = false
+        textView.isAutomaticSpellingCorrectionEnabled = false
+        textView.isAutomaticLinkDetectionEnabled = false
+        textView.isAutomaticDataDetectionEnabled = false
+
+        textView.isContinuousSpellCheckingEnabled = true
+        textView.usesFontPanel = false
+        textView.usesFindBar = true
+        textView.isIncrementalSearchingEnabled = true
+
+        // Soft-wrap: track the scroll view's width, no horizontal growth.
+        textView.isHorizontallyResizable = false
+        textView.isVerticallyResizable = true
+        textView.autoresizingMask = [.width]
+        textView.minSize = NSSize(width: 0, height: 0)
+        textView.maxSize = NSSize(width: CGFloat.greatestFiniteMagnitude,
+                                  height: CGFloat.greatestFiniteMagnitude)
+        if let container = textView.textContainer {
+            container.widthTracksTextView = true
+            container.containerSize = NSSize(width: scrollView.contentSize.width,
+                                             height: CGFloat.greatestFiniteMagnitude)
+        }
+
+        textView.string = text
+        // Setting `string` above goes through textStorage and fires the
+        // delegate; force one extra pass in case the view was empty (no edit
+        // would have been processed otherwise).
+        if let storage = textView.textStorage, storage.length > 0 {
+            highlighter.highlight(storage)
+        }
+        return scrollView
+    }
+
+    func updateNSView(_ scrollView: NSScrollView, context: Context) {
+        guard let textView = scrollView.documentView as? NSTextView else { return }
+        if textView.string != text {
+            let ranges = textView.selectedRanges
+            textView.string = text
+            // Re-clamp ranges to the new string length so we don't crash.
+            let len = (textView.string as NSString).length
+            let clamped = ranges.compactMap { value -> NSValue? in
+                var r = value.rangeValue
+                r.location = min(r.location, len)
+                r.length = min(r.length, len - r.location)
+                return NSValue(range: r)
+            }
+            textView.selectedRanges = clamped.isEmpty ? [NSValue(range: NSRange(location: len, length: 0))] : clamped
+        }
+    }
+
+    final class Coordinator: NSObject, NSTextViewDelegate {
+        var parent: EditorView
+        /// Strong reference — NSTextStorage holds its delegate weakly.
+        var highlighter: MarkdownSyntaxHighlighter?
+
+        init(_ parent: EditorView) { self.parent = parent }
+
+        func textDidChange(_ notification: Notification) {
+            guard let textView = notification.object as? NSTextView else { return }
+            // Avoid feedback loop: only push if value actually changed.
+            if parent.text != textView.string {
+                parent.text = textView.string
+            }
+        }
+    }
+}

@@ -1,0 +1,558 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		1A0000000000000000000100 /* InkwellApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A000000000000000000C000 /* InkwellApp.swift */; };
+		1A0000000000000000000101 /* MarkdownDocument.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A000000000000000000C100 /* MarkdownDocument.swift */; };
+		1A0000000000000000000102 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A000000000000000000C200 /* ContentView.swift */; };
+		1A0000000000000000000103 /* EditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A000000000000000000C300 /* EditorView.swift */; };
+		1A0000000000000000000104 /* PreviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A000000000000000000C400 /* PreviewView.swift */; };
+		1A0000000000000000000105 /* ViewMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A000000000000000000C500 /* ViewMode.swift */; };
+		1A0000000000000000000106 /* MarkdownRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A000000000000000000C600 /* MarkdownRenderer.swift */; };
+		1A0000000000000000000107 /* PreviewTemplate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A000000000000000000C700 /* PreviewTemplate.swift */; };
+		1A0000000000000000000108 /* MarkdownSyntaxHighlighter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A000000000000000000C5A0 /* MarkdownSyntaxHighlighter.swift */; };
+		1A0000000000000000000110 /* preview.css in Resources */ = {isa = PBXBuildFile; fileRef = 1A000000000000000000C800 /* preview.css */; };
+		1A0000000000000000000111 /* preview-dark.css in Resources */ = {isa = PBXBuildFile; fileRef = 1A000000000000000000C900 /* preview-dark.css */; };
+		1A0000000000000000000112 /* highlight-light.css in Resources */ = {isa = PBXBuildFile; fileRef = 1A000000000000000000CA00 /* highlight-light.css */; };
+		1A0000000000000000000113 /* highlight-dark.css in Resources */ = {isa = PBXBuildFile; fileRef = 1A000000000000000000CB00 /* highlight-dark.css */; };
+		1A0000000000000000000114 /* highlight.min.js in Resources */ = {isa = PBXBuildFile; fileRef = 1A000000000000000000CC00 /* highlight.min.js */; };
+		1A0000000000000000000120 /* MarkdownRendererTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A000000000000000000CE00 /* MarkdownRendererTests.swift */; };
+		1A0000000000000000000130 /* cmark-gfm in Frameworks */ = {isa = PBXBuildFile; productRef = 1A0000000000000000000141 /* cmark-gfm */; };
+		1A0000000000000000000131 /* cmark-gfm-extensions in Frameworks */ = {isa = PBXBuildFile; productRef = 1A0000000000000000000142 /* cmark-gfm-extensions */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		1A0000000000000000000151 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1A000000000000000000A000 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 1A000000000000000000E000;
+			remoteInfo = Inkwell;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		1A000000000000000000C000 /* InkwellApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InkwellApp.swift; sourceTree = "<group>"; };
+		1A000000000000000000C100 /* MarkdownDocument.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownDocument.swift; sourceTree = "<group>"; };
+		1A000000000000000000C200 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		1A000000000000000000C300 /* EditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorView.swift; sourceTree = "<group>"; };
+		1A000000000000000000C400 /* PreviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewView.swift; sourceTree = "<group>"; };
+		1A000000000000000000C500 /* ViewMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewMode.swift; sourceTree = "<group>"; };
+		1A000000000000000000C5A0 /* MarkdownSyntaxHighlighter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownSyntaxHighlighter.swift; sourceTree = "<group>"; };
+		1A000000000000000000C600 /* MarkdownRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownRenderer.swift; sourceTree = "<group>"; };
+		1A000000000000000000C700 /* PreviewTemplate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewTemplate.swift; sourceTree = "<group>"; };
+		1A000000000000000000C800 /* preview.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = preview.css; sourceTree = "<group>"; };
+		1A000000000000000000C900 /* preview-dark.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "preview-dark.css"; sourceTree = "<group>"; };
+		1A000000000000000000CA00 /* highlight-light.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "highlight-light.css"; sourceTree = "<group>"; };
+		1A000000000000000000CB00 /* highlight-dark.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "highlight-dark.css"; sourceTree = "<group>"; };
+		1A000000000000000000CC00 /* highlight.min.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = "highlight.min.js"; sourceTree = "<group>"; };
+		1A000000000000000000CD00 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		1A000000000000000000CE00 /* MarkdownRendererTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownRendererTests.swift; sourceTree = "<group>"; };
+		1A000000000000000000D000 /* Inkwell.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Inkwell.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		1A000000000000000000D100 /* InkwellTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = InkwellTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		1A000000000000000000F100 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1A0000000000000000000130 /* cmark-gfm in Frameworks */,
+				1A0000000000000000000131 /* cmark-gfm-extensions in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1A000000000000000000F400 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		1A000000000000000000B000 /* Main */ = {
+			isa = PBXGroup;
+			children = (
+				1A000000000000000000B200 /* Inkwell */,
+				1A000000000000000000B700 /* Tests */,
+				1A000000000000000000B100 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		1A000000000000000000B100 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				1A000000000000000000D000 /* Inkwell.app */,
+				1A000000000000000000D100 /* InkwellTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		1A000000000000000000B200 /* Inkwell */ = {
+			isa = PBXGroup;
+			children = (
+				1A000000000000000000C000 /* InkwellApp.swift */,
+				1A000000000000000000B300 /* Document */,
+				1A000000000000000000B400 /* Views */,
+				1A000000000000000000B500 /* Rendering */,
+				1A000000000000000000B600 /* Resources */,
+				1A000000000000000000CD00 /* Info.plist */,
+			);
+			path = Inkwell;
+			sourceTree = "<group>";
+		};
+		1A000000000000000000B300 /* Document */ = {
+			isa = PBXGroup;
+			children = (
+				1A000000000000000000C100 /* MarkdownDocument.swift */,
+			);
+			path = Document;
+			sourceTree = "<group>";
+		};
+		1A000000000000000000B400 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				1A000000000000000000C200 /* ContentView.swift */,
+				1A000000000000000000C300 /* EditorView.swift */,
+				1A000000000000000000C400 /* PreviewView.swift */,
+				1A000000000000000000C500 /* ViewMode.swift */,
+				1A000000000000000000C5A0 /* MarkdownSyntaxHighlighter.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		1A000000000000000000B500 /* Rendering */ = {
+			isa = PBXGroup;
+			children = (
+				1A000000000000000000C600 /* MarkdownRenderer.swift */,
+				1A000000000000000000C700 /* PreviewTemplate.swift */,
+			);
+			path = Rendering;
+			sourceTree = "<group>";
+		};
+		1A000000000000000000B600 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				1A000000000000000000C800 /* preview.css */,
+				1A000000000000000000C900 /* preview-dark.css */,
+				1A000000000000000000CA00 /* highlight-light.css */,
+				1A000000000000000000CB00 /* highlight-dark.css */,
+				1A000000000000000000CC00 /* highlight.min.js */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		1A000000000000000000B700 /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+				1A000000000000000000CE00 /* MarkdownRendererTests.swift */,
+			);
+			path = Tests;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		1A000000000000000000E000 /* Inkwell */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1A000000000000000000E200 /* Build configuration list for PBXNativeTarget "Inkwell" */;
+			buildPhases = (
+				1A000000000000000000F000 /* Sources */,
+				1A000000000000000000F100 /* Frameworks */,
+				1A000000000000000000F200 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Inkwell;
+			packageProductDependencies = (
+				1A0000000000000000000141 /* cmark-gfm */,
+				1A0000000000000000000142 /* cmark-gfm-extensions */,
+			);
+			productName = Inkwell;
+			productReference = 1A000000000000000000D000 /* Inkwell.app */;
+			productType = "com.apple.product-type.application";
+		};
+		1A000000000000000000E100 /* InkwellTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1A000000000000000000E500 /* Build configuration list for PBXNativeTarget "InkwellTests" */;
+			buildPhases = (
+				1A000000000000000000F300 /* Sources */,
+				1A000000000000000000F400 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				1A0000000000000000000150 /* PBXTargetDependency */,
+			);
+			name = InkwellTests;
+			productName = InkwellTests;
+			productReference = 1A000000000000000000D100 /* InkwellTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		1A000000000000000000A000 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1500;
+				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+					1A000000000000000000E000 = {
+						CreatedOnToolsVersion = 15.0;
+					};
+					1A000000000000000000E100 = {
+						CreatedOnToolsVersion = 15.0;
+						TestTargetID = 1A000000000000000000E000;
+					};
+				};
+			};
+			buildConfigurationList = 1A000000000000000000A100 /* Build configuration list for PBXProject "Inkwell" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 1A000000000000000000B000;
+			packageReferences = (
+				1A0000000000000000000140 /* XCRemoteSwiftPackageReference "swift-cmark" */,
+			);
+			productRefGroup = 1A000000000000000000B100 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				1A000000000000000000E000 /* Inkwell */,
+				1A000000000000000000E100 /* InkwellTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		1A000000000000000000F200 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1A0000000000000000000110 /* preview.css in Resources */,
+				1A0000000000000000000111 /* preview-dark.css in Resources */,
+				1A0000000000000000000112 /* highlight-light.css in Resources */,
+				1A0000000000000000000113 /* highlight-dark.css in Resources */,
+				1A0000000000000000000114 /* highlight.min.js in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		1A000000000000000000F000 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1A0000000000000000000100 /* InkwellApp.swift in Sources */,
+				1A0000000000000000000101 /* MarkdownDocument.swift in Sources */,
+				1A0000000000000000000102 /* ContentView.swift in Sources */,
+				1A0000000000000000000103 /* EditorView.swift in Sources */,
+				1A0000000000000000000104 /* PreviewView.swift in Sources */,
+				1A0000000000000000000105 /* ViewMode.swift in Sources */,
+				1A0000000000000000000106 /* MarkdownRenderer.swift in Sources */,
+				1A0000000000000000000107 /* PreviewTemplate.swift in Sources */,
+				1A0000000000000000000108 /* MarkdownSyntaxHighlighter.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1A000000000000000000F300 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1A0000000000000000000120 /* MarkdownRendererTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		1A0000000000000000000150 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 1A000000000000000000E000 /* Inkwell */;
+			targetProxy = 1A0000000000000000000151 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		1A000000000000000000A200 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		1A000000000000000000A300 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+			};
+			name = Release;
+		};
+		1A000000000000000000E300 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Inkwell/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.inkwell.Inkwell;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.9;
+			};
+			name = Debug;
+		};
+		1A000000000000000000E400 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Inkwell/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.inkwell.Inkwell;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.9;
+			};
+			name = Release;
+		};
+		1A000000000000000000E600 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.inkwell.InkwellTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.9;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Inkwell.app/Contents/MacOS/Inkwell";
+			};
+			name = Debug;
+		};
+		1A000000000000000000E700 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.inkwell.InkwellTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.9;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Inkwell.app/Contents/MacOS/Inkwell";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		1A000000000000000000A100 /* Build configuration list for PBXProject "Inkwell" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1A000000000000000000A200 /* Debug */,
+				1A000000000000000000A300 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		1A000000000000000000E200 /* Build configuration list for PBXNativeTarget "Inkwell" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1A000000000000000000E300 /* Debug */,
+				1A000000000000000000E400 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		1A000000000000000000E500 /* Build configuration list for PBXNativeTarget "InkwellTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1A000000000000000000E600 /* Debug */,
+				1A000000000000000000E700 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		1A0000000000000000000140 /* XCRemoteSwiftPackageReference "swift-cmark" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-cmark.git";
+			requirement = {
+				branch = gfm;
+				kind = branch;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		1A0000000000000000000141 /* cmark-gfm */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1A0000000000000000000140 /* XCRemoteSwiftPackageReference "swift-cmark" */;
+			productName = "cmark-gfm";
+		};
+		1A0000000000000000000142 /* cmark-gfm-extensions */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1A0000000000000000000140 /* XCRemoteSwiftPackageReference "swift-cmark" */;
+			productName = "cmark-gfm-extensions";
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = 1A000000000000000000A000 /* Project object */;
+}
