@@ -23,6 +23,7 @@ import AppKit
 final class AppDelegate: NSObject, NSApplicationDelegate {
     /// Owns the Open Recent submenu takeover (SwiftUI doesn't populate it).
     private let recentDocumentsMenu = RecentDocumentsMenuController()
+    private let viewMenuTrimmer = ViewMenuTrimmer()
 
     func applicationWillFinishLaunching(_ notification: Notification) {
         NSWindow.allowsAutomaticWindowTabbing = true
@@ -30,6 +31,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         recentDocumentsMenu.install()
+        viewMenuTrimmer.install()
     }
 
     /// Sent up the responder chain by the tab bar's "+" button.
@@ -105,6 +107,9 @@ private final class WindowConfiguringView: NSView {
         // The tab already shows the document name, so the large titlebar title is
         // redundant — hide it. (Tabs derive their own title, so they're unaffected.)
         window.titleVisibility = .hidden
+
+        // Restore (and keep saving) the window size/position across launches.
+        window.setFrameAutosaveName("MownDocumentWindow")
 
         // Always consume the pending flag so it can't leak onto a later window.
         let (pending, host) = DocumentTabbing.consumePending()
