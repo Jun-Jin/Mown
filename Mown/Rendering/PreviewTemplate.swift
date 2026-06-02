@@ -1,12 +1,22 @@
 import Foundation
 
 /// Wraps rendered Markdown HTML in a full HTML document with bundled CSS and
-/// `highlight.js` for code-block syntax highlighting (§3.3, §4 polish).
+/// `highlight.js` for code-block syntax highlighting (§3.3, §4 polish), plus
+/// `mermaid.js` to render ```mermaid fences as diagrams.
 enum PreviewTemplate {
     static func wrap(bodyHTML: String, isDark: Bool) -> String {
         let appCSS  = loadResource(isDark ? "preview-dark" : "preview", ext: "css")
         let hljsCSS = loadResource(isDark ? "highlight-dark" : "highlight-light", ext: "css")
         let hljsJS  = loadResource("highlight.min", ext: "js")
+
+        // cmark (with GITHUB_PRE_LANG) renders a ```mermaid fence as
+        // <pre lang="mermaid">. Only pull in the 3 MB mermaid bundle when the
+        // document actually has one — most don't.
+        let needsMermaid = bodyHTML.contains("lang=\"mermaid\"") || bodyHTML.contains("language-mermaid")
+        // Served by BundleResourceSchemeHandler — `loadHTMLString` with a file://
+        // baseURL won't load a local <script src>, so we go through the scheme.
+        let mermaidTag = needsMermaid ? #"<script src="mownres://res/mermaid.min.js"></script>"# : ""
+        let mermaidTheme = isDark ? "dark" : "default"
 
         return """
         <!DOCTYPE html>
@@ -20,12 +30,34 @@ enum PreviewTemplate {
         <body class="markdown-body">
         \(bodyHTML)
         <script>\(hljsJS)</script>
+        \(mermaidTag)
         <script>
-        if (window.hljs) {
-            document.querySelectorAll('pre code').forEach(function (el) {
-                try { hljs.highlightElement(el); } catch (_) {}
+        (function () {
+            // Turn ```mermaid fences (<pre lang="mermaid">) into mermaid
+            // containers *before* highlight.js runs, so they render as diagrams
+            // rather than being syntax-highlighted as source.
+            document.querySelectorAll('pre[lang="mermaid"], pre > code.language-mermaid').forEach(function (node) {
+                var pre = node.tagName === 'PRE' ? node : node.parentElement;
+                var code = pre.querySelector('code') || pre;
+                var div = document.createElement('div');
+                div.className = 'mermaid';
+                div.textContent = code.textContent;
+                pre.replaceWith(div);
             });
-        }
+
+            if (window.hljs) {
+                document.querySelectorAll('pre code').forEach(function (el) {
+                    try { hljs.highlightElement(el); } catch (_) {}
+                });
+            }
+
+            if (window.mermaid) {
+                try {
+                    mermaid.initialize({ startOnLoad: false, securityLevel: 'strict', theme: '\(mermaidTheme)' });
+                    mermaid.run({ querySelector: '.mermaid', suppressErrors: true });
+                } catch (_) {}
+            }
+        })();
         </script>
         </body>
         </html>

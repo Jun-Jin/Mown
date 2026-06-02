@@ -119,3 +119,6 @@ body.markdown-body {
 .markdown-body img { max-width: 100%; }
 
 .markdown-body del { text-decoration: line-through; }
+
+.markdown-body .mermaid { text-align: center; margin: 16px 0; }
+.markdown-body .mermaid svg { max-width: 100%; height: auto; }
