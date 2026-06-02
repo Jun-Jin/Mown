@@ -35,18 +35,23 @@ enum DocumentTabbing {
     /// Set while a ⌘T / "+" request is in flight. The next document window to
     /// attach reads this to decide whether to join the current window as a tab.
     private static var pendingTab = false
+    /// The window the pending tab should join, captured the moment ⌘T fires —
+    /// by the time the new window attaches, key/main status has already moved
+    /// to it, so we can no longer ask AppKit which window was front.
+    private static weak var pendingHost: NSWindow?
 
     /// Opens a new untitled document as a tab of the current window. Backs ⌘T
     /// and the tab bar's "+" button.
     static func newTab() {
         pendingTab = true
+        pendingHost = NSApp.keyWindow ?? NSApp.mainWindow
         NSDocumentController.shared.newDocument(nil)
     }
 
     /// Read once by the next window that attaches, then cleared.
-    fileprivate static func consumePendingTab() -> Bool {
-        defer { pendingTab = false }
-        return pendingTab
+    fileprivate static func consumePending() -> (pending: Bool, host: NSWindow?) {
+        defer { pendingTab = false; pendingHost = nil }
+        return (pendingTab, pendingHost)
     }
 }
 
@@ -94,16 +99,10 @@ private final class WindowConfiguringView: NSView {
         // redundant — hide it. (Tabs derive their own title, so they're unaffected.)
         window.titleVisibility = .hidden
 
-        // SwiftUI's `.toolbar { … }` opts the window into full-size content,
-        // letting the content view (and HSplitView's divider) draw behind the
-        // titlebar/toolbar. Turn that off so the split divider stops at the
-        // top of the content area.
-        window.styleMask.remove(.fullSizeContentView)
-        window.titlebarAppearsTransparent = false
-
         // Always consume the pending flag so it can't leak onto a later window.
-        let pending = DocumentTabbing.consumePendingTab()
-        if pending || isFileBacked {
+        let (pending, host) = DocumentTabbing.consumePending()
+        let wantsTab = pending || isFileBacked
+        if wantsTab {
             // ⌘T / "+" / open-from-disk: join the current window as a tab
             // regardless of the user's system "prefer tabs" setting. With no
             // current window (e.g. the first file opened) AppKit opens it
@@ -124,5 +123,44 @@ private final class WindowConfiguringView: NSView {
                 panel.close()
             }
         }
+
+        // Finish on the next runloop tick, once the window is on screen:
+        //   1. `.preferred` reliably joins an *existing* tab group but fails to
+        //      merge into a lone, un-grouped window — the ⌘T-from-a-single-window
+        //      case. Detect that and merge explicitly.
+        //   2. Keep the tab bar visible even with a single tab (AppKit hides it
+        //      by default below two tabs).
+        DispatchQueue.main.async { [weak window] in
+            guard let window else { return }
+            if wantsTab { mergeIntoTabGroup(window, preferredHost: host) }
+            ensureTabBarVisible(window)
+        }
+    }
+}
+
+/// Explicitly tabs `window` into a sibling group when AppKit's `.preferred`
+/// tabbing didn't (the first merge into a previously-standalone window). No-op
+/// if the window already landed in a multi-tab group.
+private func mergeIntoTabGroup(_ window: NSWindow, preferredHost: NSWindow?) {
+    if let group = window.tabGroup, group.windows.count > 1 { return }
+
+    let host = preferredHost ?? NSApp.windows.first {
+        $0 !== window && $0.tabbingIdentifier == mownTabbingIdentifier && $0.isVisible
+    }
+    guard let host, host !== window,
+          host.tabbingIdentifier == mownTabbingIdentifier,
+          host.isVisible,
+          host.tabGroup?.windows.contains(window) != true
+    else { return }
+
+    host.addTabbedWindow(window, ordered: .above)
+    window.makeKeyAndOrderFront(nil)
+}
+
+/// Shows the window's tab bar if AppKit has it hidden, so it stays visible even
+/// when only one tab remains.
+private func ensureTabBarVisible(_ window: NSWindow) {
+    if window.tabGroup?.isTabBarVisible == false {
+        window.toggleTabBar(nil)
     }
 }
