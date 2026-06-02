@@ -15,6 +15,8 @@ struct ContentView: View {
     /// `GeometryReader` defers `WindowAccessor`'s attachment past order-front,
     /// which breaks ⌘T tabbing (tabbingMode must be set before the window shows).
     @State private var contentSize: CGSize = .zero
+    /// Unsaved-changes flag, driven from AppKit (see DocumentEditedIndicator).
+    @StateObject private var editState = DocumentEditState()
 
     /// Resolves the preview's effective light/dark, deferring to the live
     /// system appearance when the user's choice is `.system`.
@@ -53,6 +55,23 @@ struct ContentView: View {
                     if floatingPickerVisible { floatingPickerVisible = false }
                 }
             }
+            .overlay(alignment: .topTrailing) {
+                if editState.isEdited {
+                    HStack(spacing: 5) {
+                        Circle().fill(.orange).frame(width: 7, height: 7)
+                        Text("Unsaved")
+                    }
+                    .font(.caption.weight(.medium))
+                    .foregroundStyle(.secondary)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 5)
+                    .background(.regularMaterial, in: Capsule())
+                    .overlay(Capsule().strokeBorder(.separator, lineWidth: 0.5))
+                    .padding(12)
+                    .transition(.opacity)
+                }
+            }
+            .animation(.easeInOut(duration: 0.15), value: editState.isEdited)
             .background(
                 GeometryReader { geo in
                     Color.clear
@@ -61,7 +80,7 @@ struct ContentView: View {
                 }
             )
             .frame(minWidth: 600, minHeight: 400)
-            .background(WindowAccessor(isFileBacked: fileURL != nil))
+            .background(WindowAccessor(isFileBacked: fileURL != nil, editState: editState))
             .task(id: document.text) {
                 await scheduleRender(source: document.text)
             }

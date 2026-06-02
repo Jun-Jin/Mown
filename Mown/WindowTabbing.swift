@@ -73,9 +73,10 @@ private let mownTabbingIdentifier = NSWindow.TabbingIdentifier("com.mown.documen
 /// opened from a file on disk so they default to tabbing.
 struct WindowAccessor: NSViewRepresentable {
     var isFileBacked: Bool = false
+    var editState: DocumentEditState
 
     func makeNSView(context: Context) -> NSView {
-        WindowConfiguringView(isFileBacked: isFileBacked)
+        WindowConfiguringView(isFileBacked: isFileBacked, editState: editState)
     }
 
     func updateNSView(_ nsView: NSView, context: Context) {}
@@ -90,9 +91,13 @@ struct WindowAccessor: NSViewRepresentable {
 /// order-front time, so a new tab never appears as a standalone window first.
 private final class WindowConfiguringView: NSView {
     private let isFileBacked: Bool
+    private let editState: DocumentEditState
+    /// Drives the close-button dot and the editor's "Unsaved" badge.
+    private let editedIndicator = DocumentEditedIndicator()
 
-    init(isFileBacked: Bool) {
+    init(isFileBacked: Bool, editState: DocumentEditState) {
         self.isFileBacked = isFileBacked
+        self.editState = editState
         super.init(frame: .zero)
     }
 
@@ -110,6 +115,9 @@ private final class WindowConfiguringView: NSView {
 
         // Restore (and keep saving) the window size/position across launches.
         window.setFrameAutosaveName("MownDocumentWindow")
+
+        // Drive the close-button dot and the editor's "Unsaved" badge.
+        editedIndicator.attach(to: window, editState: editState)
 
         // Always consume the pending flag so it can't leak onto a later window.
         let (pending, host) = DocumentTabbing.consumePending()
