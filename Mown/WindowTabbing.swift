@@ -21,8 +21,15 @@ import AppKit
 /// shared instance, and installing another one crashes at launch.
 
 final class AppDelegate: NSObject, NSApplicationDelegate {
+    /// Owns the Open Recent submenu takeover (SwiftUI doesn't populate it).
+    private let recentDocumentsMenu = RecentDocumentsMenuController()
+
     func applicationWillFinishLaunching(_ notification: Notification) {
         NSWindow.allowsAutomaticWindowTabbing = true
+    }
+
+    func applicationDidFinishLaunching(_ notification: Notification) {
+        recentDocumentsMenu.install()
     }
 
     /// Sent up the responder chain by the tab bar's "+" button.
