@@ -94,6 +94,13 @@ private final class WindowConfiguringView: NSView {
         // redundant — hide it. (Tabs derive their own title, so they're unaffected.)
         window.titleVisibility = .hidden
 
+        // SwiftUI's `.toolbar { … }` opts the window into full-size content,
+        // letting the content view (and HSplitView's divider) draw behind the
+        // titlebar/toolbar. Turn that off so the split divider stops at the
+        // top of the content area.
+        window.styleMask.remove(.fullSizeContentView)
+        window.titlebarAppearsTransparent = false
+
         // Always consume the pending flag so it can't leak onto a later window.
         let pending = DocumentTabbing.consumePendingTab()
         if pending || isFileBacked {
