@@ -25,6 +25,8 @@ struct MownApp: App {
                                  shortcut: settings.editModeShortcut)
                 ViewModeMenuItem("Preview Mode", mode: .preview,
                                  shortcut: settings.previewModeShortcut)
+                ViewModeMenuItem("Split Mode", mode: .split,
+                                 shortcut: settings.splitModeShortcut)
                 // Full Screen is a fixed ⌘↵, not rebindable.
                 Button("Toggle Full Screen") {
                     NSApp.keyWindow?.toggleFullScreen(nil)

@@ -56,6 +56,7 @@ private struct ShortcutSettingsView: View {
             Section {
                 row("Edit Mode", shortcut: $settings.editModeShortcut)
                 row("Preview Mode", shortcut: $settings.previewModeShortcut)
+                row("Split Mode", shortcut: $settings.splitModeShortcut)
             } header: {
                 Text("Keyboard Shortcuts")
             } footer: {

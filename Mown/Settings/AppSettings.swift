@@ -93,8 +93,9 @@ struct KeyboardShortcutSetting: Codable, Equatable {
 final class AppSettings: ObservableObject {
     static let shared = AppSettings()
 
-    static let defaultEditModeShortcut = KeyboardShortcutSetting(key: "e", modifiers: .command)
-    static let defaultPreviewModeShortcut = KeyboardShortcutSetting(key: "h", modifiers: .command)
+    static let defaultEditModeShortcut = KeyboardShortcutSetting(key: "e", modifiers: [.command, .shift])
+    static let defaultPreviewModeShortcut = KeyboardShortcutSetting(key: "h", modifiers: [.command, .shift])
+    static let defaultSplitModeShortcut = KeyboardShortcutSetting(key: "g", modifiers: [.command, .shift])
 
     @Published var editorTheme: AppTheme {
         didSet { defaults.set(editorTheme.rawValue, forKey: Key.editorTheme) }
@@ -112,9 +113,14 @@ final class AppSettings: ObservableObject {
         didSet { write(previewModeShortcut, forKey: Key.previewModeShortcut) }
     }
 
+    @Published var splitModeShortcut: KeyboardShortcutSetting {
+        didSet { write(splitModeShortcut, forKey: Key.splitModeShortcut) }
+    }
+
     func resetShortcuts() {
         editModeShortcut = Self.defaultEditModeShortcut
         previewModeShortcut = Self.defaultPreviewModeShortcut
+        splitModeShortcut = Self.defaultSplitModeShortcut
     }
 
     // MARK: Persistence
@@ -126,6 +132,7 @@ final class AppSettings: ObservableObject {
         static let previewTheme = "theme.preview"
         static let editModeShortcut = "shortcut.editMode"
         static let previewModeShortcut = "shortcut.previewMode"
+        static let splitModeShortcut = "shortcut.splitMode"
     }
 
     init(defaults: UserDefaults = .standard) {
@@ -138,6 +145,8 @@ final class AppSettings: ObservableObject {
             ?? Self.defaultEditModeShortcut
         self.previewModeShortcut = Self.read(forKey: Key.previewModeShortcut, from: defaults)
             ?? Self.defaultPreviewModeShortcut
+        self.splitModeShortcut = Self.read(forKey: Key.splitModeShortcut, from: defaults)
+            ?? Self.defaultSplitModeShortcut
     }
 
     private func write(_ value: KeyboardShortcutSetting, forKey key: String) {
