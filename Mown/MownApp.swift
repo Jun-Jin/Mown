@@ -1,4 +1,5 @@
 import SwiftUI
+import AppKit
 
 @main
 struct MownApp: App {
@@ -12,15 +13,23 @@ struct MownApp: App {
         }
         .commands {
             // ⌘N (File ▸ New) stays as DocumentGroup's built-in "new window".
-            // The custom commands below take their shortcuts from AppSettings, so
-            // the Settings ▸ Shortcuts pane can rebind them.
+            // New Tab keeps a fixed ⌘T (not rebindable). The view-mode commands
+            // take their shortcuts from AppSettings, so the Settings ▸ Shortcuts
+            // pane can rebind them.
             CommandGroup(after: .newItem) {
-                ShortcutCommandButton("New Tab", shortcut: settings.newTabShortcut) {
-                    DocumentTabbing.newTab()
-                }
+                Button("New Tab") { DocumentTabbing.newTab() }
+                    .keyboardShortcut("t", modifiers: .command)
             }
             CommandGroup(after: .toolbar) {
-                CycleViewModeMenuItem(shortcut: settings.cycleViewModeShortcut)
+                ViewModeMenuItem("Edit Mode", mode: .edit,
+                                 shortcut: settings.editModeShortcut)
+                ViewModeMenuItem("Preview Mode", mode: .preview,
+                                 shortcut: settings.previewModeShortcut)
+                // Full Screen is a fixed ⌘↵, not rebindable.
+                Button("Toggle Full Screen") {
+                    NSApp.keyWindow?.toggleFullScreen(nil)
+                }
+                .keyboardShortcut(.return, modifiers: .command)
             }
         }
 
@@ -28,25 +37,6 @@ struct MownApp: App {
             SettingsView()
                 .environmentObject(settings)
         }
-    }
-}
-
-/// A menu `Button` whose keyboard shortcut comes from a configurable
-/// `KeyboardShortcutSetting`. When the setting is empty, no shortcut is bound.
-struct ShortcutCommandButton: View {
-    private let title: String
-    private let shortcut: KeyboardShortcutSetting
-    private let action: () -> Void
-
-    init(_ title: String, shortcut: KeyboardShortcutSetting, action: @escaping () -> Void) {
-        self.title = title
-        self.shortcut = shortcut
-        self.action = action
-    }
-
-    var body: some View {
-        Button(title, action: action)
-            .modifier(OptionalShortcut(shortcut))
     }
 }
 
@@ -66,26 +56,36 @@ struct OptionalShortcut: ViewModifier {
     }
 }
 
-/// Action exposed by the frontmost document window so the global "Cycle View
-/// Mode" menu item can drive only the focused window's view mode.
-struct CycleViewModeActionKey: FocusedValueKey {
-    typealias Value = () -> Void
+/// Action exposed by the frontmost document window so the global view-mode menu
+/// items can drive only the focused window's view mode.
+struct SetViewModeActionKey: FocusedValueKey {
+    typealias Value = (ViewMode) -> Void
 }
 
 extension FocusedValues {
-    var cycleViewMode: CycleViewModeActionKey.Value? {
-        get { self[CycleViewModeActionKey.self] }
-        set { self[CycleViewModeActionKey.self] = newValue }
+    var setViewMode: SetViewModeActionKey.Value? {
+        get { self[SetViewModeActionKey.self] }
+        set { self[SetViewModeActionKey.self] = newValue }
     }
 }
 
-private struct CycleViewModeMenuItem: View {
-    @FocusedValue(\.cycleViewMode) private var action
-    let shortcut: KeyboardShortcutSetting
+/// A menu item that switches the focused window to a specific `ViewMode`, with a
+/// configurable keyboard shortcut. Disabled when no document window is focused.
+private struct ViewModeMenuItem: View {
+    @FocusedValue(\.setViewMode) private var setMode
+    private let title: String
+    private let mode: ViewMode
+    private let shortcut: KeyboardShortcutSetting
+
+    init(_ title: String, mode: ViewMode, shortcut: KeyboardShortcutSetting) {
+        self.title = title
+        self.mode = mode
+        self.shortcut = shortcut
+    }
 
     var body: some View {
-        Button("Cycle View Mode") { action?() }
+        Button(title) { setMode?(mode) }
             .modifier(OptionalShortcut(shortcut))
-            .disabled(action == nil)
+            .disabled(setMode == nil)
     }
 }

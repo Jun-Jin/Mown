@@ -90,6 +90,10 @@ private final class WindowConfiguringView: NSView {
         guard let window else { return }
         window.tabbingIdentifier = mownTabbingIdentifier
 
+        // The tab already shows the document name, so the large titlebar title is
+        // redundant — hide it. (Tabs derive their own title, so they're unaffected.)
+        window.titleVisibility = .hidden
+
         // Always consume the pending flag so it can't leak onto a later window.
         let pending = DocumentTabbing.consumePendingTab()
         if pending || isFileBacked {

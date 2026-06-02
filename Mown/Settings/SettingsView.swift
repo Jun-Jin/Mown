@@ -54,8 +54,8 @@ private struct ShortcutSettingsView: View {
     var body: some View {
         Form {
             Section {
-                row("New Tab", shortcut: $settings.newTabShortcut)
-                row("Cycle View Mode", shortcut: $settings.cycleViewModeShortcut)
+                row("Edit Mode", shortcut: $settings.editModeShortcut)
+                row("Preview Mode", shortcut: $settings.previewModeShortcut)
             } header: {
                 Text("Keyboard Shortcuts")
             } footer: {

@@ -23,11 +23,6 @@ enum ViewMode: String, CaseIterable, Identifiable {
         }
     }
 
-    func next() -> ViewMode {
-        let all = Self.allCases
-        let idx = all.firstIndex(of: self) ?? 0
-        return all[(idx + 1) % all.count]
-    }
 }
 
 struct ViewModePicker: View {

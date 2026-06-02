@@ -28,8 +28,8 @@ struct ContentView: View {
             .task(id: document.text) {
                 await scheduleRender(source: document.text)
             }
-            .focusedSceneValue(\.cycleViewMode) {
-                viewMode = viewMode.next()
+            .focusedSceneValue(\.setViewMode) { mode in
+                viewMode = mode
             }
     }
 

@@ -93,8 +93,8 @@ struct KeyboardShortcutSetting: Codable, Equatable {
 final class AppSettings: ObservableObject {
     static let shared = AppSettings()
 
-    static let defaultNewTabShortcut = KeyboardShortcutSetting(key: "t", modifiers: .command)
-    static let defaultCycleViewModeShortcut = KeyboardShortcutSetting(key: "e", modifiers: .command)
+    static let defaultEditModeShortcut = KeyboardShortcutSetting(key: "e", modifiers: .command)
+    static let defaultPreviewModeShortcut = KeyboardShortcutSetting(key: "h", modifiers: .command)
 
     @Published var editorTheme: AppTheme {
         didSet { defaults.set(editorTheme.rawValue, forKey: Key.editorTheme) }
@@ -104,17 +104,17 @@ final class AppSettings: ObservableObject {
         didSet { defaults.set(previewTheme.rawValue, forKey: Key.previewTheme) }
     }
 
-    @Published var newTabShortcut: KeyboardShortcutSetting {
-        didSet { write(newTabShortcut, forKey: Key.newTabShortcut) }
+    @Published var editModeShortcut: KeyboardShortcutSetting {
+        didSet { write(editModeShortcut, forKey: Key.editModeShortcut) }
     }
 
-    @Published var cycleViewModeShortcut: KeyboardShortcutSetting {
-        didSet { write(cycleViewModeShortcut, forKey: Key.cycleViewModeShortcut) }
+    @Published var previewModeShortcut: KeyboardShortcutSetting {
+        didSet { write(previewModeShortcut, forKey: Key.previewModeShortcut) }
     }
 
     func resetShortcuts() {
-        newTabShortcut = Self.defaultNewTabShortcut
-        cycleViewModeShortcut = Self.defaultCycleViewModeShortcut
+        editModeShortcut = Self.defaultEditModeShortcut
+        previewModeShortcut = Self.defaultPreviewModeShortcut
     }
 
     // MARK: Persistence
@@ -124,8 +124,8 @@ final class AppSettings: ObservableObject {
     private enum Key {
         static let editorTheme = "theme.editor"
         static let previewTheme = "theme.preview"
-        static let newTabShortcut = "shortcut.newTab"
-        static let cycleViewModeShortcut = "shortcut.cycleViewMode"
+        static let editModeShortcut = "shortcut.editMode"
+        static let previewModeShortcut = "shortcut.previewMode"
     }
 
     init(defaults: UserDefaults = .standard) {
@@ -134,10 +134,10 @@ final class AppSettings: ObservableObject {
             .flatMap(AppTheme.init(rawValue:)) ?? .system
         self.previewTheme = defaults.string(forKey: Key.previewTheme)
             .flatMap(AppTheme.init(rawValue:)) ?? .system
-        self.newTabShortcut = Self.read(forKey: Key.newTabShortcut, from: defaults)
-            ?? Self.defaultNewTabShortcut
-        self.cycleViewModeShortcut = Self.read(forKey: Key.cycleViewModeShortcut, from: defaults)
-            ?? Self.defaultCycleViewModeShortcut
+        self.editModeShortcut = Self.read(forKey: Key.editModeShortcut, from: defaults)
+            ?? Self.defaultEditModeShortcut
+        self.previewModeShortcut = Self.read(forKey: Key.previewModeShortcut, from: defaults)
+            ?? Self.defaultPreviewModeShortcut
     }
 
     private func write(_ value: KeyboardShortcutSetting, forKey key: String) {
