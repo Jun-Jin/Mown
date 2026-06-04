@@ -21,12 +21,19 @@ permissions:
 
 jobs:
   release:
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
 
-      - name: Show toolchain
-        run: xcodebuild -version
+      # Mown.xcodeproj is objectVersion 77 (Xcode 16+ synchronized-folder
+      # format); the image's default Xcode may be older and would fail with
+      # "Unable to read project". Select the newest Xcode the runner has.
+      - name: Select latest Xcode
+        run: |
+          set -euo pipefail
+          latest="$(ls -d /Applications/Xcode_*.app 2>/dev/null | sort -V | tail -1 || true)"
+          if [ -n "$latest" ]; then sudo xcode-select -s "$latest"; fi
+          xcodebuild -version
 
       # Recreate the Developer ID signing identity in an ephemeral keychain so
       # `release.sh`'s `security find-identity` autodetection finds it, exactly
