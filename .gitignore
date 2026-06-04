@@ -1,2 +1,4 @@
 .build*
 /Mown.app/
+/dist/
+.swiftpm/
