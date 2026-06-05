@@ -29,7 +29,7 @@ Download the latest `Mown-<version>.dmg` from the [Releases](https://github.com/
 Requires Xcode 16 or newer (the project uses `objectVersion 77` synchronized folders).
 
 ```sh
-git clone https://github.com/<you>/Mown.git
+git clone https://github.com/Jun-Jin/Mown.git
 cd Mown
 xcodebuild -scheme Mown -configuration Release CODE_SIGNING_ALLOWED=NO
 ```
