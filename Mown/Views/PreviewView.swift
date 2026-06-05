@@ -1,6 +1,7 @@
 import SwiftUI
 import WebKit
 import AppKit
+import UniformTypeIdentifiers
 
 struct PreviewView: NSViewRepresentable {
     let html: String
@@ -8,19 +9,26 @@ struct PreviewView: NSViewRepresentable {
     /// live system appearance — drives both the preview CSS and the web view's
     /// own chrome (scrollbars, form controls).
     let isDark: Bool
+    /// Directory the rendered HTML treats as its base — relative `<img src="…">`
+    /// paths in the document resolve against this via the `mownres://doc/…`
+    /// scheme handler. `nil` for untitled docs; then relative paths fall back
+    /// to the app bundle.
+    let baseURL: URL?
 
     func makeNSView(context: Context) -> WKWebView {
         let config = WKWebViewConfiguration()
-        // Disable JS-driven navigation from the rendered preview — only the
-        // bundled highlight.js / mermaid.js need to run, at load time.
+        // Only the bundled highlight.js / mermaid.js need to run, at load time.
         let prefs = WKWebpagePreferences()
         prefs.allowsContentJavaScript = true
         config.defaultWebpagePreferences = prefs
 
-        // Serve large bundled scripts (mermaid.js) over a custom scheme:
-        // `loadHTMLString` with a file:// baseURL refuses local <script src>.
-        config.setURLSchemeHandler(BundleResourceSchemeHandler(),
-                                   forURLScheme: BundleResourceSchemeHandler.scheme)
+        // One scheme handler serves two virtual roots:
+        //   mownres://res/<name.ext>          → app bundle resource (mermaid.js)
+        //   mownres://doc/<relative/path>     → file under the document's dir
+        // The doc root is what lets `<img src="pics/foo.png">` resolve next to
+        // the markdown file without tripping WKWebView's file:// origin policy.
+        config.setURLSchemeHandler(context.coordinator.schemeHandler,
+                                   forURLScheme: PreviewSchemeHandler.scheme)
 
         let webView = WKWebView(frame: .zero, configuration: config)
         webView.setValue(false, forKey: "drawsBackground") // let CSS background show through
@@ -31,13 +39,24 @@ struct PreviewView: NSViewRepresentable {
 
     func updateNSView(_ webView: WKWebView, context: Context) {
         webView.appearance = NSAppearance(named: isDark ? .darkAqua : .aqua)
+        context.coordinator.schemeHandler.docDirectory = baseURL
         let full = PreviewTemplate.wrap(bodyHTML: html, isDark: isDark)
-        webView.loadHTMLString(full, baseURL: Bundle.main.resourceURL)
+        // baseURL drives relative-path resolution in the loaded HTML:
+        //   - With a doc URL, use `mownres://doc/` so `<img src="x.png">`
+        //     becomes `mownres://doc/x.png` and gets served from the doc dir.
+        //   - Without one (untitled docs), keep the bundle URL so bundled CSS
+        //     resolves and we don't try to serve from a nonexistent doc dir.
+        let base = baseURL != nil
+            ? URL(string: "\(PreviewSchemeHandler.scheme)://doc/")
+            : Bundle.main.resourceURL
+        webView.loadHTMLString(full, baseURL: base)
     }
 
     func makeCoordinator() -> Coordinator { Coordinator() }
 
     final class Coordinator: NSObject, WKNavigationDelegate {
+        let schemeHandler = PreviewSchemeHandler()
+
         // Open external links in the user's browser instead of inside the preview.
         func webView(_ webView: WKWebView,
                      decidePolicyFor navigationAction: WKNavigationAction,
@@ -53,41 +72,84 @@ struct PreviewView: NSViewRepresentable {
     }
 }
 
-/// Serves bundled web resources (e.g. `mermaid.min.js`) to the preview over the
-/// `mownres://` scheme. The preview is loaded with `loadHTMLString` + a file://
-/// baseURL, which blocks local `<script src>`, so a scheme handler is the
-/// reliable way to pull in large bundled scripts without inlining megabytes of
-/// JS into every render. Resources are resolved by name from the app bundle, so
-/// the URL path can't escape it.
-private final class BundleResourceSchemeHandler: NSObject, WKURLSchemeHandler {
+/// Serves preview resources over a custom scheme so the WKWebView can pull in
+/// bundled scripts (mermaid.js) and sibling files of the current document
+/// (images referenced by `<img src="…">`) without tripping `loadHTMLString`'s
+/// `file://` restrictions on local `<script src>` and cross-file image loads.
+///
+/// URL layout:
+///   `mownres://res/<name>.<ext>` → looked up by name in the app bundle.
+///   `mownres://doc/<relative/path>` → resolved under `docDirectory`.
+final class PreviewSchemeHandler: NSObject, WKURLSchemeHandler {
     static let scheme = "mownres"
+
+    /// The current document's directory. Updated on every `updateNSView`.
+    /// Reads/writes are serialized by SwiftUI's main-actor update flow, so no
+    /// extra synchronization is needed.
+    var docDirectory: URL?
 
     func webView(_ webView: WKWebView, start urlSchemeTask: WKURLSchemeTask) {
         guard let url = urlSchemeTask.request.url else {
             urlSchemeTask.didFailWithError(URLError(.badURL))
             return
         }
-        let file = (url.lastPathComponent as NSString)
-        let name = file.deletingPathExtension
-        let ext = file.pathExtension
-        guard !name.isEmpty,
-              let resourceURL = Bundle.main.url(forResource: name, withExtension: ext.isEmpty ? nil : ext),
-              let data = try? Data(contentsOf: resourceURL) else {
+
+        let root = url.host ?? ""
+        let data: Data?
+        let resolvedURL: URL?
+        switch root {
+        case "res":
+            // Look up by bundle filename; the URL path can't escape the bundle.
+            let file = (url.lastPathComponent as NSString)
+            let name = file.deletingPathExtension
+            let ext = file.pathExtension
+            resolvedURL = name.isEmpty
+                ? nil
+                : Bundle.main.url(forResource: name, withExtension: ext.isEmpty ? nil : ext)
+        case "doc":
+            // Relative path under the document's directory; refuse anything
+            // that escapes via `..` after normalization.
+            if let dir = docDirectory {
+                let rel = url.path.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
+                let candidate = dir.appendingPathComponent(rel).standardized
+                resolvedURL = candidate.path.hasPrefix(dir.standardized.path) ? candidate : nil
+            } else {
+                resolvedURL = nil
+            }
+        default:
+            resolvedURL = nil
+        }
+
+        guard let resolved = resolvedURL,
+              let bytes = try? Data(contentsOf: resolved) else {
             urlSchemeTask.didFailWithError(URLError(.fileDoesNotExist))
             return
         }
-        let mime: String
-        switch ext.lowercased() {
-        case "js":  mime = "application/javascript; charset=utf-8"
-        case "css": mime = "text/css; charset=utf-8"
-        default:    mime = "application/octet-stream"
-        }
-        let response = HTTPURLResponse(url: url, statusCode: 200, httpVersion: "HTTP/1.1",
-                                       headerFields: ["Content-Type": mime])!
+        data = bytes
+
+        let response = HTTPURLResponse(
+            url: url, statusCode: 200, httpVersion: "HTTP/1.1",
+            headerFields: ["Content-Type": Self.mimeType(for: resolved)])!
         urlSchemeTask.didReceive(response)
-        urlSchemeTask.didReceive(data)
+        urlSchemeTask.didReceive(data!)
         urlSchemeTask.didFinish()
     }
 
     func webView(_ webView: WKWebView, stop urlSchemeTask: WKURLSchemeTask) {}
+
+    /// Resolve a MIME type for the WKWebView. Falls back to UTType so we don't
+    /// have to hand-maintain a long list of image formats.
+    private static func mimeType(for url: URL) -> String {
+        switch url.pathExtension.lowercased() {
+        case "js":  return "application/javascript; charset=utf-8"
+        case "css": return "text/css; charset=utf-8"
+        case "svg": return "image/svg+xml"
+        default:
+            if let type = UTType(filenameExtension: url.pathExtension),
+               let mime = type.preferredMIMEType {
+                return mime
+            }
+            return "application/octet-stream"
+        }
+    }
 }

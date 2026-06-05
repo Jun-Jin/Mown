@@ -4,8 +4,11 @@ import cmark_gfm_extensions
 
 /// Bridges raw Markdown text into safe HTML via cmark-gfm.
 ///
-/// Safety: we never pass `CMARK_OPT_UNSAFE`, so raw HTML in the input is
-/// escaped (or filtered by the `tagfilter` extension). This matches §3.3.
+/// Safety: we pass `CMARK_OPT_UNSAFE` so raw HTML (notably `<img>`) is emitted
+/// verbatim, but the `tagfilter` extension neutralizes the high-risk tags
+/// GFM blocks (`<script>`, `<iframe>`, `<style>`, `<noembed>`, `<noframes>`,
+/// `<plaintext>`, `<title>`, `<textarea>`, `<xmp>`) by escaping their opening
+/// brackets. This matches GitHub's own rendering behavior.
 final class MarkdownRenderer {
     static let shared = MarkdownRenderer()
 
@@ -25,9 +28,10 @@ final class MarkdownRenderer {
     }
 
     func renderHTML(_ markdown: String) -> String {
-        // CMARK_OPT_DEFAULT keeps raw HTML escaped; GITHUB_PRE_LANG emits
-        // <pre lang="..."> which highlight.js picks up via the language class.
-        let options = CMARK_OPT_DEFAULT | CMARK_OPT_GITHUB_PRE_LANG | CMARK_OPT_VALIDATE_UTF8
+        // UNSAFE lets <img> (and other raw HTML) through; tagfilter still
+        // strips the dangerous tags. GITHUB_PRE_LANG emits <pre lang="...">
+        // which highlight.js picks up via the language class.
+        let options = CMARK_OPT_UNSAFE | CMARK_OPT_GITHUB_PRE_LANG | CMARK_OPT_VALIDATE_UTF8
 
         guard let parser = cmark_parser_new(options) else { return "" }
         defer { cmark_parser_free(parser) }

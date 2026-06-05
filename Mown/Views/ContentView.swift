@@ -95,12 +95,12 @@ struct ContentView: View {
         case .edit:
             EditorView(text: $document.text, theme: settings.editorTheme)
         case .preview:
-            PreviewView(html: renderedHTML, isDark: previewIsDark)
+            PreviewView(html: renderedHTML, isDark: previewIsDark, baseURL: fileURL?.deletingLastPathComponent())
         case .split:
             HSplitView {
                 EditorView(text: $document.text, theme: settings.editorTheme)
                     .frame(minWidth: 240)
-                PreviewView(html: renderedHTML, isDark: previewIsDark)
+                PreviewView(html: renderedHTML, isDark: previewIsDark, baseURL: fileURL?.deletingLastPathComponent())
                     .frame(minWidth: 240)
             }
         }
