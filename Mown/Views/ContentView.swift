@@ -97,12 +97,12 @@ struct ContentView: View {
     private var layout: some View {
         switch viewMode {
         case .edit:
-            EditorView(text: $document.text, theme: settings.editorTheme)
+            EditorView(text: $document.text, theme: settings.editorTheme, showLineNumbers: settings.showLineNumbers)
         case .preview:
             PreviewView(html: renderedHTML, isDark: previewIsDark, baseURL: fileURL?.deletingLastPathComponent())
         case .split:
             HSplitView {
-                EditorView(text: $document.text, theme: settings.editorTheme, scrollSync: scrollSync)
+                EditorView(text: $document.text, theme: settings.editorTheme, scrollSync: scrollSync, showLineNumbers: settings.showLineNumbers)
                     .frame(minWidth: 240)
                 PreviewView(html: renderedHTML, isDark: previewIsDark, baseURL: fileURL?.deletingLastPathComponent(), scrollSync: scrollSync)
                     .frame(minWidth: 240)

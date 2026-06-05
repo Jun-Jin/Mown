@@ -10,6 +10,8 @@ struct EditorView: NSViewRepresentable {
     var theme: AppTheme = .system
     /// Shared scroll-fraction bus used in split mode. `nil` outside split.
     var scrollSync: ScrollSync? = nil
+    /// Show the line-number gutter. Toggled live from Settings.
+    var showLineNumbers: Bool = true
 
     func makeCoordinator() -> Coordinator { Coordinator(self) }
 
@@ -74,6 +76,7 @@ struct EditorView: NSViewRepresentable {
         }
 
         context.coordinator.attachScrollSync(to: scrollView, sync: scrollSync)
+        context.coordinator.applyLineNumbers(showLineNumbers, scrollView: scrollView, textView: textView)
         return scrollView
     }
 
@@ -85,6 +88,7 @@ struct EditorView: NSViewRepresentable {
         if context.coordinator.boundSync !== scrollSync {
             context.coordinator.attachScrollSync(to: scrollView, sync: scrollSync)
         }
+        context.coordinator.applyLineNumbers(showLineNumbers, scrollView: scrollView, textView: textView)
         if textView.string != text {
             let ranges = textView.selectedRanges
             textView.string = text
@@ -175,6 +179,31 @@ struct EditorView: NSViewRepresentable {
             let scrollable = documentView.bounds.height - visibleHeight
             guard scrollable > 0 else { return 0 }
             return scrollView.contentView.bounds.origin.y / scrollable
+        }
+
+        // MARK: - Line numbers
+
+        private var lineRuler: LineNumberRulerView?
+
+        func applyLineNumbers(_ enabled: Bool, scrollView: NSScrollView, textView: NSTextView) {
+            if enabled, lineRuler == nil {
+                let ruler = LineNumberRulerView(textView: textView)
+                scrollView.hasVerticalRuler = true
+                scrollView.verticalRulerView = ruler
+                scrollView.rulersVisible = true
+                lineRuler = ruler
+                // The ruler steals horizontal space from the document area.
+                // Without an explicit tile, the text view keeps its old frame
+                // and renders text behind the ruler — visually invisible
+                // because the gutter paints over it.
+                scrollView.tile()
+            } else if !enabled, lineRuler != nil {
+                scrollView.rulersVisible = false
+                scrollView.verticalRulerView = nil
+                scrollView.hasVerticalRuler = false
+                lineRuler = nil
+                scrollView.tile()
+            }
         }
 
         private func apply(fraction: CGFloat, to scrollView: NSScrollView) {

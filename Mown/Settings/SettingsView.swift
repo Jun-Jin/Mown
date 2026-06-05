@@ -46,6 +46,12 @@ private struct ThemeSettingsView: View {
                 .font(.caption)
                 .foregroundStyle(.secondary)
             }
+
+            Section {
+                Toggle("Show line numbers", isOn: $settings.showLineNumbers)
+            } header: {
+                Text("Editor")
+            }
         }
         .formStyle(.grouped)
     }

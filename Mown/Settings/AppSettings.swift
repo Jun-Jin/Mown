@@ -117,6 +117,10 @@ final class AppSettings: ObservableObject {
         didSet { write(splitModeShortcut, forKey: Key.splitModeShortcut) }
     }
 
+    @Published var showLineNumbers: Bool {
+        didSet { defaults.set(showLineNumbers, forKey: Key.showLineNumbers) }
+    }
+
     func resetShortcuts() {
         editModeShortcut = Self.defaultEditModeShortcut
         previewModeShortcut = Self.defaultPreviewModeShortcut
@@ -133,6 +137,7 @@ final class AppSettings: ObservableObject {
         static let editModeShortcut = "shortcut.editMode"
         static let previewModeShortcut = "shortcut.previewMode"
         static let splitModeShortcut = "shortcut.splitMode"
+        static let showLineNumbers = "editor.showLineNumbers"
     }
 
     init(defaults: UserDefaults = .standard) {
@@ -147,6 +152,10 @@ final class AppSettings: ObservableObject {
             ?? Self.defaultPreviewModeShortcut
         self.splitModeShortcut = Self.read(forKey: Key.splitModeShortcut, from: defaults)
             ?? Self.defaultSplitModeShortcut
+        // Treat a missing key as "on" — line numbers are a common-enough
+        // editor affordance that surfacing them by default is friendlier than
+        // hiding behind a setting nobody discovers.
+        self.showLineNumbers = defaults.object(forKey: Key.showLineNumbers) as? Bool ?? true
     }
 
     private func write(_ value: KeyboardShortcutSetting, forKey key: String) {
