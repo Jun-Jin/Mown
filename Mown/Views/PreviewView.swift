@@ -2,6 +2,7 @@ import SwiftUI
 import WebKit
 import AppKit
 import UniformTypeIdentifiers
+import Combine
 
 struct PreviewView: NSViewRepresentable {
     let html: String
@@ -14,6 +15,8 @@ struct PreviewView: NSViewRepresentable {
     /// scheme handler. `nil` for untitled docs; then relative paths fall back
     /// to the app bundle.
     let baseURL: URL?
+    /// Shared scroll-fraction bus used in split mode. `nil` outside split.
+    var scrollSync: ScrollSync? = nil
 
     func makeNSView(context: Context) -> WKWebView {
         let config = WKWebViewConfiguration()
@@ -30,6 +33,14 @@ struct PreviewView: NSViewRepresentable {
         config.setURLSchemeHandler(context.coordinator.schemeHandler,
                                    forURLScheme: PreviewSchemeHandler.scheme)
 
+        // Scroll bridge: a user script posts the page's scroll fraction to
+        // the coordinator, and the coordinator pushes incoming fractions back
+        // via evaluateJavaScript. Always installed (cheap) so toggling split
+        // mode at runtime doesn't require rebuilding the WKWebView.
+        config.userContentController.add(context.coordinator,
+                                         name: PreviewScrollBridge.messageName)
+        config.userContentController.addUserScript(PreviewScrollBridge.userScript)
+
         let webView = WKWebView(frame: .zero, configuration: config)
         webView.setValue(false, forKey: "drawsBackground") // let CSS background show through
         webView.allowsBackForwardNavigationGestures = false
@@ -40,6 +51,7 @@ struct PreviewView: NSViewRepresentable {
     func updateNSView(_ webView: WKWebView, context: Context) {
         webView.appearance = NSAppearance(named: isDark ? .darkAqua : .aqua)
         context.coordinator.schemeHandler.docDirectory = baseURL
+        context.coordinator.attachScrollSync(webView: webView, sync: scrollSync)
         let full = PreviewTemplate.wrap(bodyHTML: html, isDark: isDark)
         // baseURL drives relative-path resolution in the loaded HTML:
         //   - With a doc URL, use `mownres://doc/` so `<img src="x.png">`
@@ -54,8 +66,16 @@ struct PreviewView: NSViewRepresentable {
 
     func makeCoordinator() -> Coordinator { Coordinator() }
 
-    final class Coordinator: NSObject, WKNavigationDelegate {
+    final class Coordinator: NSObject, WKNavigationDelegate, WKScriptMessageHandler {
         let schemeHandler = PreviewSchemeHandler()
+        private(set) weak var boundSync: ScrollSync?
+        private var syncCancellable: AnyCancellable?
+        /// Last fraction received from the editor; replayed once the page
+        /// signals it's ready, since evaluateJavaScript before `didFinish`
+        /// would be ignored or hit a stale document.
+        private var pendingFraction: CGFloat?
+        private weak var lastWebView: WKWebView?
+        private var navigationReady = false
 
         // Open external links in the user's browser instead of inside the preview.
         func webView(_ webView: WKWebView,
@@ -69,7 +89,100 @@ struct PreviewView: NSViewRepresentable {
             }
             decisionHandler(.allow)
         }
+
+        func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+            navigationReady = true
+            // The HTML reloads on every keystroke (debounced), so re-apply the
+            // last known fraction so the preview doesn't snap back to the top
+            // while the user is scrolling the editor.
+            if let pending = pendingFraction { apply(fraction: pending, webView: webView) }
+        }
+
+        func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
+            navigationReady = false
+        }
+
+        // MARK: - Scroll bridge
+
+        func userContentController(_ userContentController: WKUserContentController,
+                                   didReceive message: WKScriptMessage) {
+            guard message.name == PreviewScrollBridge.messageName,
+                  let value = message.body as? NSNumber,
+                  let sync = boundSync else { return }
+            sync.report(CGFloat(value.doubleValue), from: .preview)
+        }
+
+        func attachScrollSync(webView: WKWebView, sync: ScrollSync?) {
+            lastWebView = webView
+            if boundSync === sync { return }
+            syncCancellable = nil
+            boundSync = sync
+            guard let sync else { return }
+            syncCancellable = sync.$event
+                .receive(on: RunLoop.main)
+                .sink { [weak self, weak webView] event in
+                    guard let self, let webView else { return }
+                    guard event.source != .preview else { return }
+                    self.pendingFraction = event.fraction
+                    self.apply(fraction: event.fraction, webView: webView)
+                }
+        }
+
+        private func apply(fraction: CGFloat, webView: WKWebView) {
+            guard navigationReady else { return }
+            // Set a flag so the page-side scroll listener recognizes this
+            // scroll as programmatic and skips reporting it back. Double-RAF
+            // ensures the scroll event fires before we clear the flag.
+            let js = """
+            (function () {
+                window.__mownProgrammaticScroll = true;
+                var max = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+                window.scrollTo(0, max * \(fraction));
+                requestAnimationFrame(function () {
+                    requestAnimationFrame(function () {
+                        window.__mownProgrammaticScroll = false;
+                    });
+                });
+            })();
+            """
+            webView.evaluateJavaScript(js, completionHandler: nil)
+        }
     }
+}
+
+/// Page-side glue for the scroll-sync feature. Lives as a constant so the
+/// WKUserScript and message-handler name don't drift apart.
+private enum PreviewScrollBridge {
+    static let messageName = "mownScroll"
+
+    /// Posts the current scroll fraction to native on every user scroll, while
+    /// ignoring scrolls flagged as programmatic (so the editor's `apply` call
+    /// doesn't bounce back).
+    static let userScript = WKUserScript(
+        source: """
+        (function () {
+            var rafPending = false;
+            function fraction() {
+                var doc = document.documentElement;
+                var max = Math.max(1, doc.scrollHeight - window.innerHeight);
+                return window.scrollY / max;
+            }
+            window.addEventListener('scroll', function () {
+                if (window.__mownProgrammaticScroll) return;
+                if (rafPending) return;
+                rafPending = true;
+                requestAnimationFrame(function () {
+                    rafPending = false;
+                    try {
+                        window.webkit.messageHandlers.\(messageName).postMessage(fraction());
+                    } catch (_) {}
+                });
+            }, { passive: true });
+        })();
+        """,
+        injectionTime: .atDocumentEnd,
+        forMainFrameOnly: true
+    )
 }
 
 /// Serves preview resources over a custom scheme so the WKWebView can pull in

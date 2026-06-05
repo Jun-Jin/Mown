@@ -17,6 +17,10 @@ struct ContentView: View {
     @State private var contentSize: CGSize = .zero
     /// Unsaved-changes flag, driven from AppKit (see DocumentEditedIndicator).
     @StateObject private var editState = DocumentEditState()
+    /// Drives editor↔preview scroll sync in split mode. Held across mode
+    /// changes so the panes don't reset their position when split is
+    /// re-entered.
+    @StateObject private var scrollSync = ScrollSync()
 
     /// Resolves the preview's effective light/dark, deferring to the live
     /// system appearance when the user's choice is `.system`.
@@ -98,9 +102,9 @@ struct ContentView: View {
             PreviewView(html: renderedHTML, isDark: previewIsDark, baseURL: fileURL?.deletingLastPathComponent())
         case .split:
             HSplitView {
-                EditorView(text: $document.text, theme: settings.editorTheme)
+                EditorView(text: $document.text, theme: settings.editorTheme, scrollSync: scrollSync)
                     .frame(minWidth: 240)
-                PreviewView(html: renderedHTML, isDark: previewIsDark, baseURL: fileURL?.deletingLastPathComponent())
+                PreviewView(html: renderedHTML, isDark: previewIsDark, baseURL: fileURL?.deletingLastPathComponent(), scrollSync: scrollSync)
                     .frame(minWidth: 240)
             }
         }
