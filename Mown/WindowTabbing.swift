@@ -27,6 +27,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationWillFinishLaunching(_ notification: Notification) {
         NSWindow.allowsAutomaticWindowTabbing = true
+
+        // AppKit's macOS 13+ default is to show the system Open panel at
+        // launch (controlled by NSShowAppCentricOpenPanelInsteadOfUntitledFile).
+        // Register false so it skips the panel.
+        UserDefaults.standard.register(
+            defaults: ["NSShowAppCentricOpenPanelInsteadOfUntitledFile": false]
+        )
     }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
