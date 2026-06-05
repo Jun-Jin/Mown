@@ -3,7 +3,7 @@ import SwiftUI
 /// The app's configuration window (opened via the "Settings…" menu item / ⌘,).
 /// Two panes: theme selection and keyboard-shortcut binding.
 struct SettingsView: View {
-    private enum Tab: Hashable { case theme, shortcuts }
+    private enum Tab: Hashable { case theme, shortcuts, cli }
     @State private var selection: Tab = .theme
 
     var body: some View {
@@ -15,6 +15,10 @@ struct SettingsView: View {
             ShortcutSettingsView()
                 .tabItem { Label("Shortcuts", systemImage: "keyboard") }
                 .tag(Tab.shortcuts)
+
+            CLISettingsView()
+                .tabItem { Label("Command Line", systemImage: "terminal") }
+                .tag(Tab.cli)
         }
         .frame(width: 480)
     }
@@ -80,4 +84,74 @@ private struct ShortcutSettingsView: View {
                 .frame(width: 150, height: 22)
         }
     }
+}
+
+/// Installs / removes the bundled `mown` script as /usr/local/bin/mown via an
+/// admin AppleScript prompt — same pattern as VS Code's "Install 'code' command".
+private struct CLISettingsView: View {
+    @State private var status: InstallCLI.Status = .notInstalled
+
+    var body: some View {
+        Form {
+            Section {
+                LabeledContent("Status") {
+                    Text(statusText).foregroundStyle(statusColor)
+                }
+                LabeledContent("Path") {
+                    Text(InstallCLI.destination)
+                        .font(.system(.body, design: .monospaced))
+                        .textSelection(.enabled)
+                }
+            } header: {
+                Text("Command Line Tool")
+            } footer: {
+                Text("Installs a `\(InstallCLI.toolName)` command that opens Markdown files in Mown from the terminal "
+                     + "(e.g. `\(InstallCLI.toolName) notes.md`). macOS will ask for your administrator password "
+                     + "because the symlink lives in /usr/local/bin.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+            }
+
+            Section {
+                Button(primaryButtonTitle) {
+                    InstallCLI.install()
+                    refresh()
+                }
+                if case .installed = status {
+                    Button("Uninstall") {
+                        InstallCLI.uninstall()
+                        refresh()
+                    }
+                }
+            }
+        }
+        .formStyle(.grouped)
+        .onAppear { refresh() }
+    }
+
+    private var primaryButtonTitle: String {
+        switch status {
+        case .notInstalled: "Install"
+        case .installed: "Reinstall"
+        case .foreign: "Replace"
+        }
+    }
+
+    private var statusText: String {
+        switch status {
+        case .notInstalled: "Not installed"
+        case .installed: "Installed"
+        case .foreign(let path): "Another file at this path → \(path)"
+        }
+    }
+
+    private var statusColor: Color {
+        switch status {
+        case .installed: .green
+        case .foreign: .orange
+        case .notInstalled: .secondary
+        }
+    }
+
+    private func refresh() { status = InstallCLI.currentStatus() }
 }
