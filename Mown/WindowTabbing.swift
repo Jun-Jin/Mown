@@ -120,6 +120,14 @@ private final class WindowConfiguringView: NSView {
         // redundant — hide it. (Tabs derive their own title, so they're unaffected.)
         window.titleVisibility = .hidden
 
+        // SwiftUI's document window opts into full-size content, letting the
+        // content view (and HSplitView's divider — the "center line") draw up
+        // behind the titlebar. Turn that off so the divider stops at the top of
+        // the content area. (Previously fixed in b055165, lost when the toolbar
+        // was removed; restored here because the window enables it regardless.)
+        window.styleMask.remove(.fullSizeContentView)
+        window.titlebarAppearsTransparent = false
+
         // Restore (and keep saving) the window size/position across launches.
         window.setFrameAutosaveName("MownDocumentWindow")
 
