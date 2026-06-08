@@ -84,7 +84,7 @@ struct ContentView: View {
                 }
             )
             .frame(minWidth: 600, minHeight: 400)
-            .background(WindowAccessor(isFileBacked: fileURL != nil, editState: editState))
+            .background(WindowAccessor(fileURL: fileURL, editState: editState))
             .task(id: document.text) {
                 await scheduleRender(source: document.text)
             }

@@ -1,5 +1,6 @@
 import SwiftUI
 import AppKit
+import UniformTypeIdentifiers
 
 /// Mown opens each Markdown file through `DocumentGroup`. macOS can tab those
 /// document windows, but SwiftUI gives no API to wire up "⌘N = new window,
@@ -79,11 +80,12 @@ private let mownTabbingIdentifier = NSWindow.TabbingIdentifier("com.mown.documen
 /// tabbing once AppKit has attached the view. `isFileBacked` marks windows
 /// opened from a file on disk so they default to tabbing.
 struct WindowAccessor: NSViewRepresentable {
-    var isFileBacked: Bool = false
+    /// File on disk backing this window, if any. `nil` for untitled ⌘N/⌘T docs.
+    var fileURL: URL? = nil
     var editState: DocumentEditState
 
     func makeNSView(context: Context) -> NSView {
-        WindowConfiguringView(isFileBacked: isFileBacked, editState: editState)
+        WindowConfiguringView(fileURL: fileURL, editState: editState)
     }
 
     func updateNSView(_ nsView: NSView, context: Context) {}
@@ -97,13 +99,14 @@ struct WindowAccessor: NSViewRepresentable {
 /// tabbing here lets AppKit place the window directly into the right group at
 /// order-front time, so a new tab never appears as a standalone window first.
 private final class WindowConfiguringView: NSView {
-    private let isFileBacked: Bool
+    private let fileURL: URL?
+    private var isFileBacked: Bool { fileURL != nil }
     private let editState: DocumentEditState
     /// Drives the close-button dot and the editor's "Unsaved" badge.
     private let editedIndicator = DocumentEditedIndicator()
 
-    init(isFileBacked: Bool, editState: DocumentEditState) {
-        self.isFileBacked = isFileBacked
+    init(fileURL: URL?, editState: DocumentEditState) {
+        self.fileURL = fileURL
         self.editState = editState
         super.init(frame: .zero)
     }
@@ -117,7 +120,8 @@ private final class WindowConfiguringView: NSView {
         window.tabbingIdentifier = mownTabbingIdentifier
 
         // The tab already shows the document name, so the large titlebar title is
-        // redundant — hide it. (Tabs derive their own title, so they're unaffected.)
+        // redundant — hide it from the titlebar. This only affects the titlebar
+        // text; the tab's own label is set explicitly below.
         window.titleVisibility = .hidden
 
         // SwiftUI's document window opts into full-size content, letting the
@@ -127,6 +131,14 @@ private final class WindowConfiguringView: NSView {
         // was removed; restored here because the window enables it regardless.)
         window.styleMask.remove(.fullSizeContentView)
         window.titlebarAppearsTransparent = false
+
+        // Make every tab show BOTH the file icon and the filename. With the
+        // titlebar title hidden, AppKit otherwise collapses a file-backed
+        // window's tab to its proxy icon only while untitled windows keep text
+        // only — the inconsistency users see. An explicit attributed title
+        // (icon image attachment + name) overrides that fallback, so every tab
+        // renders identically as "icon filename".
+        window.tab.attributedTitle = tabTitle(for: fileURL)
 
         // Restore (and keep saving) the window size/position across launches.
         window.setFrameAutosaveName("MownDocumentWindow")
@@ -165,12 +177,35 @@ private final class WindowConfiguringView: NSView {
         //      case. Detect that and merge explicitly.
         //   2. Keep the tab bar visible even with a single tab (AppKit hides it
         //      by default below two tabs).
-        DispatchQueue.main.async { [weak window] in
+        DispatchQueue.main.async { [weak window, fileURL] in
             guard let window else { return }
             if wantsTab { mergeIntoTabGroup(window, preferredHost: host) }
             ensureTabBarVisible(window)
+            // Re-apply after SwiftUI has finished wiring the document chrome,
+            // which can re-show the titlebar title and re-derive the tab title.
+            window.titleVisibility = .hidden
+            window.tab.attributedTitle = tabTitle(for: fileURL)
         }
     }
+}
+
+/// Builds a tab label of the document's file icon followed by its name, so every
+/// tab renders consistently as "icon filename". A `nil` url (an untitled
+/// document) gets a generic document icon and the name "Untitled".
+private func tabTitle(for url: URL?) -> NSAttributedString {
+    let name = url?.lastPathComponent ?? "Untitled"
+    let icon = url.map { NSWorkspace.shared.icon(forFile: $0.path) }
+        ?? NSWorkspace.shared.icon(for: .plainText)
+    icon.size = NSSize(width: 14, height: 14)
+
+    let attachment = NSTextAttachment()
+    attachment.image = icon
+    // Drop the icon a few points so it centers on the text baseline.
+    attachment.bounds = CGRect(x: 0, y: -3, width: 14, height: 14)
+
+    let title = NSMutableAttributedString(attachment: attachment)
+    title.append(NSAttributedString(string: " " + name))
+    return title
 }
 
 /// Explicitly tabs `window` into a sibling group when AppKit's `.preferred`
