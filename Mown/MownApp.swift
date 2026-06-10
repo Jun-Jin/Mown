@@ -20,6 +20,23 @@ struct MownApp: App {
                 Button("New Tab") { DocumentTabbing.newTab() }
                     .keyboardShortcut("t", modifiers: .command)
             }
+            // Find bar for the editor. The NSTextView already enables it
+            // (`usesFindBar`); SwiftUI just doesn't ship a Find menu, so these
+            // items forward the standard text-finder actions to the focused
+            // text view. "Find Previous" intentionally has no shortcut — the
+            // conventional ⇧⌘G is taken by the Split-mode default; reach it via
+            // the find bar's ‹ button (or rebind Split in Settings to free it).
+            CommandGroup(after: .pasteboard) {
+                Menu("Find") {
+                    Button("Find…") { TextFinderCommand.perform(.showFindInterface) }
+                        .keyboardShortcut("f", modifiers: .command)
+                    Button("Find Next") { TextFinderCommand.perform(.nextMatch) }
+                        .keyboardShortcut("g", modifiers: .command)
+                    Button("Find Previous") { TextFinderCommand.perform(.previousMatch) }
+                    Button("Use Selection for Find") { TextFinderCommand.perform(.setSearchString) }
+                        .keyboardShortcut("e", modifiers: .command)
+                }
+            }
             CommandGroup(after: .toolbar) {
                 ViewModeMenuItem("Edit Mode", mode: .edit,
                                  shortcut: settings.editModeShortcut)
@@ -39,6 +56,19 @@ struct MownApp: App {
             SettingsView()
                 .environmentObject(settings)
         }
+    }
+}
+
+/// Forwards a text-finder action up the responder chain to the focused
+/// `NSTextView`, which hosts the editor's find bar. `sendAction(to: nil …)`
+/// targets the first responder, so this is a no-op when the editor isn't
+/// focused (e.g. preview-only mode). The action is carried on the sender's
+/// `tag`, exactly as AppKit's own Find menu items do.
+enum TextFinderCommand {
+    static func perform(_ action: NSTextFinder.Action) {
+        let item = NSMenuItem()
+        item.tag = action.rawValue
+        NSApp.sendAction(#selector(NSTextView.performTextFinderAction(_:)), to: nil, from: item)
     }
 }
 
