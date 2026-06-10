@@ -14,6 +14,11 @@ import AppKit
 /// needs visual cues that survive typical Markdown.
 final class MarkdownSyntaxHighlighter: NSObject, NSTextStorageDelegate {
 
+    /// The text view this storage backs. Used to detect an active input-method
+    /// composition (marked text); re-attributing the storage mid-composition
+    /// wipes the IME's marked-text underline and disturbs the session.
+    weak var textView: NSTextView?
+
     // MARK: Fonts
 
     private let baseFont: NSFont
@@ -62,6 +67,11 @@ final class MarkdownSyntaxHighlighter: NSObject, NSTextStorageDelegate {
         // highlighting fire `.editedAttributes`, which we ignore here to avoid
         // recursive re-highlighting.
         guard editedMask.contains(.editedCharacters) else { return }
+        // Leave the storage alone while an IME composition (Japanese, Chinese,
+        // Korean, ...) is in flight. The edit that commits or cancels the
+        // composition fires this hook again with no marked text, and the
+        // document re-highlights then.
+        if textView?.hasMarkedText() == true { return }
         highlight(textStorage)
     }
 
@@ -119,6 +129,13 @@ final class MarkdownSyntaxHighlighter: NSObject, NSTextStorageDelegate {
         applyMatches(of: rules.strikethrough, in: text, range: full, to: storage,
                      attrs: [.strikethroughStyle: NSUnderlineStyle.single.rawValue],
                      consuming: nil, skipConsumed: true, consumedReadOnly: consumed)
+
+        // 4. Attribute changes made inside `didProcessEditing` skip AppKit's
+        // automatic attribute-fixing pass, so characters the assigned font
+        // can't render (CJK in the monospaced system font, notably) would keep
+        // a glyph-less font and draw as nothing. Fix explicitly so fallback
+        // fonts are substituted.
+        storage.fixAttributes(in: full)
     }
 
     // MARK: helpers

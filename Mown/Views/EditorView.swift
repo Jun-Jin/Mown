@@ -38,6 +38,7 @@ struct EditorView: NSViewRepresentable {
         // Install the Markdown highlighter as the storage's delegate. The
         // coordinator retains it; NSTextStorage holds the delegate weakly.
         let highlighter = MarkdownSyntaxHighlighter(baseFont: editorFont)
+        highlighter.textView = textView
         context.coordinator.highlighter = highlighter
         textView.textStorage?.delegate = highlighter
 
