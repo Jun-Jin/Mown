@@ -18,6 +18,17 @@ enum PreviewTemplate {
         let mermaidTag = needsMermaid ? #"<script src="mownres://res/mermaid.min.js"></script>"# : ""
         let mermaidTheme = isDark ? "dark" : "default"
 
+        // KaTeX renders the `.mown-math` containers MathExtractor leaves behind.
+        // Only pull in its ~290 KB of CSS+JS when the document actually has math.
+        // The bundled CSS points fonts at `fonts/…`; rewrite that to the scheme
+        // the web view can serve (the woff2 files live flat in the bundle, and
+        // WebKit picks woff2 first so the un-rewritten woff/ttf URLs never load).
+        let needsKaTeX = bodyHTML.contains("mown-math")
+        let katexStyle = needsKaTeX
+            ? "<style>\(loadResource("katex.min", ext: "css").replacingOccurrences(of: "url(fonts/", with: "url(mownres://res/"))</style>"
+            : ""
+        let katexTag = needsKaTeX ? #"<script src="mownres://res/katex.min.js"></script>"# : ""
+
         return """
         <!DOCTYPE html>
         <html lang="en">
@@ -26,11 +37,13 @@ enum PreviewTemplate {
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <style>\(appCSS)</style>
         <style>\(hljsCSS)</style>
+        \(katexStyle)
         </head>
         <body class="markdown-body">
         \(bodyHTML)
         <script>\(hljsJS)</script>
         \(mermaidTag)
+        \(katexTag)
         <script>
         (function () {
             // Turn ```mermaid fences (<pre lang="mermaid">) into mermaid
@@ -56,6 +69,20 @@ enum PreviewTemplate {
                     mermaid.initialize({ startOnLoad: false, securityLevel: 'strict', theme: '\(mermaidTheme)' });
                     mermaid.run({ querySelector: '.mermaid', suppressErrors: true });
                 } catch (_) {}
+            }
+
+            if (window.katex) {
+                // Each .mown-math node carries its raw TeX as text content;
+                // katex.render replaces that text with the typeset output.
+                document.querySelectorAll('.mown-math').forEach(function (el) {
+                    try {
+                        katex.render(el.textContent, el, {
+                            displayMode: el.getAttribute('data-display') === '1',
+                            throwOnError: false,
+                            errorColor: '#cc0000'
+                        });
+                    } catch (_) {}
+                });
             }
         })();
         </script>

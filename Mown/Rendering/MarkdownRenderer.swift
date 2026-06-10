@@ -28,6 +28,11 @@ final class MarkdownRenderer {
     }
 
     func renderHTML(_ markdown: String) -> String {
+        // Lift TeX math out before cmark sees it (cmark would otherwise read the
+        // underscores in `$a_b$` as emphasis); the tokens are swapped back for
+        // KaTeX containers after rendering. A no-op when the doc has no math.
+        let math = MathExtractor.extract(markdown)
+
         // UNSAFE lets <img> (and other raw HTML) through; tagfilter still
         // strips the dangerous tags. GITHUB_PRE_LANG emits <pre lang="...">
         // which highlight.js picks up via the language class.
@@ -42,7 +47,7 @@ final class MarkdownRenderer {
             }
         }
 
-        markdown.withCString { ptr in
+        math.markdown.withCString { ptr in
             cmark_parser_feed(parser, ptr, strlen(ptr))
         }
 
@@ -54,6 +59,6 @@ final class MarkdownRenderer {
             return ""
         }
         defer { free(cString) }
-        return String(cString: cString)
+        return MathExtractor.reinsert(into: String(cString: cString), spans: math.spans)
     }
 }
