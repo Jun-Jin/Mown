@@ -11,6 +11,7 @@ A native macOS Markdown editor — fast, offline, zero telemetry. SwiftUI + `NST
 - **Three view modes** — Edit, Preview, Split. Toolbar control or rebindable keyboard shortcut.
 - **Live preview** rendered through `WKWebView` using Apple's [`swift-cmark-gfm`](https://github.com/apple/swift-cmark). CommonMark + GitHub-flavored Markdown (tables, task lists, strikethrough, fenced code blocks).
 - **Code highlighting** via highlight.js, **Mermaid diagrams** via mermaid.js — both bundled, no network calls.
+- **TeX math** via KaTeX — inline `$…$`, display `$$…$$`, and ` ```math ` fences, typeset offline (fonts bundled). `$` inside code and currency like `$5` stay literal.
 - **Light / dark themes** — independently configurable for the editor and the preview, with a "System" mode that follows macOS appearance.
 - **Tabbed windows** — `⌘N` opens a new window, `⌘T` opens a new tab; opens from Finder / Recents join the current window as tabs.
 - **`mown` CLI** — opens files from the terminal. Install in one click from Settings.
