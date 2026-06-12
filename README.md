@@ -9,6 +9,7 @@ A native macOS Markdown editor — fast, offline, zero telemetry. SwiftUI + `NST
 ## Features
 
 - **Three view modes** — Edit, Preview, Split. Toolbar control or rebindable keyboard shortcut.
+- **Markdown-aware editing** — list & blockquote continuation and Tab indent, inline toggles (bold / italic / code / strikethrough / link), block formatting (headings, blockquote, code block, horizontal rule, task checkboxes, tables), move / duplicate lines, auto-pair wrapping, and smart paste (URL over a selection → link, spreadsheet rows → table). Every Format shortcut is rebindable.
 - **Live preview** rendered through `WKWebView` using Apple's [`swift-cmark-gfm`](https://github.com/apple/swift-cmark). CommonMark + GitHub-flavored Markdown (tables, task lists, strikethrough, fenced code blocks).
 - **Code highlighting** via highlight.js, **Mermaid diagrams** via mermaid.js — both bundled, no network calls.
 - **TeX math** via KaTeX — inline `$…$`, display `$$…$$`, and ` ```math ` fences, typeset offline (fonts bundled). `$` inside code and currency like `$5` stay literal.
@@ -63,8 +64,37 @@ mown --help           # show usage
 | New tab                | `⌘T`          |
 | Open                   | `⌘O`          |
 | Save / Save As         | `⌘S` / `⇧⌘S` |
-| Edit / Preview / Split | `⌘1` / `⌘2` / `⌘3` (rebindable in Settings ▸ Shortcuts) |
+| Edit / Preview / Split | `⇧⌘E` / `⇧⌘H` / `⇧⌘G` (rebindable in Settings ▸ Shortcuts) |
 | Toggle Full Screen     | `⌘↩`          |
+
+### Editing
+
+Always on in the editor:
+
+| Action                              | Keystroke                                   |
+|-------------------------------------|---------------------------------------------|
+| Continue / indent list or quote     | `↩` / `⇥` / `⇧⇥`                            |
+| Move line up / down                 | `⌥↑` / `⌥↓`                                  |
+| Duplicate line                      | `⇧⌘D`                                        |
+| Wrap selection                      | type `*` `_` `` ` `` `[` with text selected |
+| Smart paste                         | `⌘V` a URL over a selection → link; tab-separated text → table |
+| Next / previous table cell          | `⇥` / `⇧⇥` inside a table                    |
+
+### Formatting
+
+`Format` menu — every shortcut is rebindable in **Settings ▸ Shortcuts**:
+
+| Action                       | Default            |
+|------------------------------|--------------------|
+| Bold / Italic                | `⌘B` / `⌘I`        |
+| Inline code / Strikethrough  | `⇧⌘C` / `⇧⌘X`      |
+| Link                         | `⌘K`               |
+| Heading 1–6                  | `⇧⌘1` … `⇧⌘6`      |
+| Increase / decrease level    | `⌘]` / `⌘[`        |
+| Blockquote                   | `⌘'`               |
+| Code block                   | `⌃⌘C`              |
+| Toggle task checkbox         | `⇧⌘L`              |
+| Horizontal rule / Insert table | unbound (assignable) |
 
 ## Releasing
 
