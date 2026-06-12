@@ -142,6 +142,45 @@ struct EditorView: NSViewRepresentable {
             }
         }
 
+        /// Intercepts the list-aware keystrokes (Tab/Shift-Tab/Return/Delete)
+        /// and routes them through `ListEditing`. Returning `false` (including
+        /// when `ListEditing` declines) lets `NSTextView` perform its default,
+        /// so this only changes behavior inside Markdown lists.
+        func textView(_ textView: NSTextView, doCommandBy commandSelector: Selector) -> Bool {
+            // Defer to the input method while a composition is in flight.
+            if textView.hasMarkedText() { return false }
+            let text = textView.string as NSString
+            let selection = textView.selectedRange()
+            let edit: ListEditing.Edit?
+            switch commandSelector {
+            case #selector(NSResponder.insertTab(_:)):
+                edit = ListEditing.indent(text: text, selection: selection)
+            case #selector(NSResponder.insertBacktab(_:)):
+                edit = ListEditing.outdent(text: text, selection: selection)
+            case #selector(NSResponder.insertNewline(_:)):
+                edit = ListEditing.newline(text: text, selection: selection)
+            case #selector(NSResponder.deleteBackward(_:)):
+                edit = ListEditing.backspace(text: text, selection: selection)
+            default:
+                return false
+            }
+            guard let edit else { return false }
+            return apply(edit, to: textView)
+        }
+
+        /// Applies a `ListEditing.Edit` through the text view's change-tracking
+        /// path so undo coalescing, the binding push, and the highlighter's
+        /// storage delegate all fire as for a normal user edit.
+        private func apply(_ edit: ListEditing.Edit, to textView: NSTextView) -> Bool {
+            guard textView.shouldChangeText(in: edit.range, replacementString: edit.replacement) else {
+                return true
+            }
+            textView.textStorage?.replaceCharacters(in: edit.range, with: edit.replacement)
+            textView.didChangeText()
+            textView.setSelectedRange(edit.selectedRange)
+            return true
+        }
+
         func attachScrollSync(to scrollView: NSScrollView, sync: ScrollSync?) {
             if let token = boundsObserver {
                 NotificationCenter.default.removeObserver(token)
