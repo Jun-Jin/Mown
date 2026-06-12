@@ -12,6 +12,9 @@ struct EditorView: NSViewRepresentable {
     var scrollSync: ScrollSync? = nil
     /// Show the line-number gutter. Toggled live from Settings.
     var showLineNumbers: Bool = true
+    /// Receives a weak reference to this editor's text view so the Format menu
+    /// can drive inline-formatting commands. `nil` when no menu is wired.
+    var editorActions: EditorActions? = nil
 
     func makeCoordinator() -> Coordinator { Coordinator(self) }
 
@@ -78,6 +81,7 @@ struct EditorView: NSViewRepresentable {
 
         context.coordinator.attachScrollSync(to: scrollView, sync: scrollSync)
         context.coordinator.applyLineNumbers(showLineNumbers, scrollView: scrollView, textView: textView)
+        editorActions?.textView = textView
         return scrollView
     }
 

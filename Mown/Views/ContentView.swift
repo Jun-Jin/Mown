@@ -21,6 +21,8 @@ struct ContentView: View {
     /// changes so the panes don't reset their position when split is
     /// re-entered.
     @StateObject private var scrollSync = ScrollSync()
+    /// Bridges the Format menu to this window's editor text view.
+    @StateObject private var editorActions = EditorActions()
 
     /// Resolves the preview's effective light/dark, deferring to the live
     /// system appearance when the user's choice is `.system`.
@@ -91,18 +93,21 @@ struct ContentView: View {
             .focusedSceneValue(\.setViewMode) { mode in
                 viewMode = mode
             }
+            // Only publish the format action when an editor is on screen, so
+            // the Format menu disables itself in preview-only mode.
+            .modifier(OptionalFormatAction(action: viewMode == .preview ? nil : editorActions.apply))
     }
 
     @ViewBuilder
     private var layout: some View {
         switch viewMode {
         case .edit:
-            EditorView(text: $document.text, theme: settings.editorTheme, showLineNumbers: settings.showLineNumbers)
+            EditorView(text: $document.text, theme: settings.editorTheme, showLineNumbers: settings.showLineNumbers, editorActions: editorActions)
         case .preview:
             PreviewView(html: renderedHTML, isDark: previewIsDark, baseURL: fileURL?.deletingLastPathComponent())
         case .split:
             HSplitView {
-                EditorView(text: $document.text, theme: settings.editorTheme, scrollSync: scrollSync, showLineNumbers: settings.showLineNumbers)
+                EditorView(text: $document.text, theme: settings.editorTheme, scrollSync: scrollSync, showLineNumbers: settings.showLineNumbers, editorActions: editorActions)
                     .frame(minWidth: 240)
                 PreviewView(html: renderedHTML, isDark: previewIsDark, baseURL: fileURL?.deletingLastPathComponent(), scrollSync: scrollSync)
                     .frame(minWidth: 240)

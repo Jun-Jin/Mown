@@ -37,6 +37,16 @@ struct MownApp: App {
                         .keyboardShortcut("e", modifiers: .command)
                 }
             }
+            CommandMenu("Format") {
+                FormatMenuItem("Bold", format: .bold, key: "b", modifiers: .command)
+                FormatMenuItem("Italic", format: .italic, key: "i", modifiers: .command)
+                // ⌘E is already bound to "Use Selection for Find"; inline code
+                // takes ⇧⌘C instead.
+                FormatMenuItem("Inline Code", format: .code, key: "c", modifiers: [.command, .shift])
+                FormatMenuItem("Strikethrough", format: .strikethrough, key: "x", modifiers: [.command, .shift])
+                Divider()
+                FormatMenuItem("Link", format: .link, key: "k", modifiers: .command)
+            }
             CommandGroup(after: .toolbar) {
                 ViewModeMenuItem("Edit Mode", mode: .edit,
                                  shortcut: settings.editModeShortcut)
@@ -98,6 +108,59 @@ extension FocusedValues {
     var setViewMode: SetViewModeActionKey.Value? {
         get { self[SetViewModeActionKey.self] }
         set { self[SetViewModeActionKey.self] = newValue }
+    }
+}
+
+/// Action exposed by the frontmost editor so the global Format menu drives only
+/// the focused window's editor. Absent in preview-only mode, which disables the
+/// menu items.
+struct FormatTextActionKey: FocusedValueKey {
+    typealias Value = (InlineFormat) -> Void
+}
+
+extension FocusedValues {
+    var formatText: FormatTextActionKey.Value? {
+        get { self[FormatTextActionKey.self] }
+        set { self[FormatTextActionKey.self] = newValue }
+    }
+}
+
+/// Publishes the format action as a focused scene value only when `action` is
+/// non-nil, so the Format menu's `@FocusedValue` reads `nil` (and the items
+/// disable) whenever no editor is on screen.
+struct OptionalFormatAction: ViewModifier {
+    let action: ((InlineFormat) -> Void)?
+
+    @ViewBuilder
+    func body(content: Content) -> some View {
+        if let action {
+            content.focusedSceneValue(\.formatText, action)
+        } else {
+            content
+        }
+    }
+}
+
+/// A Format-menu item that applies an inline-formatting toggle to the focused
+/// editor. Disabled when no editor is focused (e.g. preview-only mode).
+private struct FormatMenuItem: View {
+    @FocusedValue(\.formatText) private var formatText
+    private let title: String
+    private let format: InlineFormat
+    private let key: KeyEquivalent
+    private let modifiers: EventModifiers
+
+    init(_ title: String, format: InlineFormat, key: KeyEquivalent, modifiers: EventModifiers) {
+        self.title = title
+        self.format = format
+        self.key = key
+        self.modifiers = modifiers
+    }
+
+    var body: some View {
+        Button(title) { formatText?(format) }
+            .keyboardShortcut(key, modifiers: modifiers)
+            .disabled(formatText == nil)
     }
 }
 
