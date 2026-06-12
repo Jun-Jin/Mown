@@ -46,6 +46,25 @@ struct MownApp: App {
                 FormatMenuItem("Strikethrough", format: .strikethrough, key: "x", modifiers: [.command, .shift])
                 Divider()
                 FormatMenuItem("Link", format: .link, key: "k", modifiers: .command)
+                Divider()
+                Menu("Heading") {
+                    BlockFormatMenuItem("Heading 1", block: .heading(1), key: "1", modifiers: [.command, .shift])
+                    BlockFormatMenuItem("Heading 2", block: .heading(2), key: "2", modifiers: [.command, .shift])
+                    BlockFormatMenuItem("Heading 3", block: .heading(3), key: "3", modifiers: [.command, .shift])
+                    BlockFormatMenuItem("Heading 4", block: .heading(4), key: "4", modifiers: [.command, .shift])
+                    BlockFormatMenuItem("Heading 5", block: .heading(5), key: "5", modifiers: [.command, .shift])
+                    BlockFormatMenuItem("Heading 6", block: .heading(6), key: "6", modifiers: [.command, .shift])
+                    Divider()
+                    BlockFormatMenuItem("Increase Level", block: .bumpHeading(1), key: "]", modifiers: .command)
+                    BlockFormatMenuItem("Decrease Level", block: .bumpHeading(-1), key: "[", modifiers: .command)
+                }
+                BlockFormatMenuItem("Blockquote", block: .blockquote, key: "'", modifiers: .command)
+                // ⇧⌘C is inline code; the code *block* takes ⌃⌘C.
+                BlockFormatMenuItem("Code Block", block: .codeBlock, key: "c", modifiers: [.control, .command])
+                BlockFormatMenuItem("Toggle Task", block: .taskToggle, key: "l", modifiers: [.command, .shift])
+                Divider()
+                BlockFormatMenuItem("Horizontal Rule", block: .horizontalRule)
+                BlockFormatMenuItem("Insert Table", block: .table)
             }
             CommandGroup(after: .toolbar) {
                 ViewModeMenuItem("Edit Mode", mode: .edit,
@@ -125,16 +144,30 @@ extension FocusedValues {
     }
 }
 
-/// Publishes the format action as a focused scene value only when `action` is
-/// non-nil, so the Format menu's `@FocusedValue` reads `nil` (and the items
-/// disable) whenever no editor is on screen.
+/// Block-level counterpart to `formatText` for the Format menu's Tier 3 items.
+struct FormatBlockActionKey: FocusedValueKey {
+    typealias Value = (BlockFormat) -> Void
+}
+
+extension FocusedValues {
+    var formatBlock: FormatBlockActionKey.Value? {
+        get { self[FormatBlockActionKey.self] }
+        set { self[FormatBlockActionKey.self] = newValue }
+    }
+}
+
+/// Publishes the focused editor's formatting actions as scene values only while
+/// `actions` is non-nil, so the Format menu's `@FocusedValue` items read `nil`
+/// (and disable) whenever no editor is on screen (e.g. preview-only mode).
 struct OptionalFormatAction: ViewModifier {
-    let action: ((InlineFormat) -> Void)?
+    let actions: EditorActions?
 
     @ViewBuilder
     func body(content: Content) -> some View {
-        if let action {
-            content.focusedSceneValue(\.formatText, action)
+        if let actions {
+            content
+                .focusedSceneValue(\.formatText, actions.apply)
+                .focusedSceneValue(\.formatBlock, actions.apply)
         } else {
             content
         }
@@ -161,6 +194,46 @@ private struct FormatMenuItem: View {
         Button(title) { formatText?(format) }
             .keyboardShortcut(key, modifiers: modifiers)
             .disabled(formatText == nil)
+    }
+}
+
+/// A Format-menu item that applies a block-level action (Tier 3, #6) to the
+/// focused editor, with an optional keyboard shortcut. Disabled when no editor
+/// is focused.
+private struct BlockFormatMenuItem: View {
+    @FocusedValue(\.formatBlock) private var formatBlock
+    private let title: String
+    private let block: BlockFormat
+    private let key: KeyEquivalent?
+    private let modifiers: EventModifiers
+
+    init(_ title: String, block: BlockFormat, key: KeyEquivalent? = nil, modifiers: EventModifiers = []) {
+        self.title = title
+        self.block = block
+        self.key = key
+        self.modifiers = modifiers
+    }
+
+    var body: some View {
+        Button(title) { formatBlock?(block) }
+            .modifier(OptionalKeyShortcut(key: key, modifiers: modifiers))
+            .disabled(formatBlock == nil)
+    }
+}
+
+/// Applies `.keyboardShortcut` only when a key is supplied, so menu items with
+/// no shortcut (e.g. Horizontal Rule) still render.
+private struct OptionalKeyShortcut: ViewModifier {
+    let key: KeyEquivalent?
+    let modifiers: EventModifiers
+
+    @ViewBuilder
+    func body(content: Content) -> some View {
+        if let key {
+            content.keyboardShortcut(key, modifiers: modifiers)
+        } else {
+            content
+        }
     }
 }
 

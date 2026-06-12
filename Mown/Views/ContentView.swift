@@ -93,9 +93,9 @@ struct ContentView: View {
             .focusedSceneValue(\.setViewMode) { mode in
                 viewMode = mode
             }
-            // Only publish the format action when an editor is on screen, so
+            // Only publish the format actions when an editor is on screen, so
             // the Format menu disables itself in preview-only mode.
-            .modifier(OptionalFormatAction(action: viewMode == .preview ? nil : editorActions.apply))
+            .modifier(OptionalFormatAction(actions: viewMode == .preview ? nil : editorActions))
     }
 
     @ViewBuilder

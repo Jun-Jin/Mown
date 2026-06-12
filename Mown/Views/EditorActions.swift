@@ -30,16 +30,20 @@ final class EditorActions: ObservableObject {
         textView.setSelectedRange(edit.selectedRange)
     }
 
+    /// Applies a block-level formatting action (Tier 3, #6) to the whole lines
+    /// covered by the selection. A no-op action leaves the text untouched.
+    func apply(_ format: BlockFormat) {
+        guard let textView else { return }
+        let edit = BlockFormatting.edit(for: format,
+                                        text: textView.string as NSString,
+                                        selection: textView.selectedRange())
+        if let edit { textView.apply(edit) }
+    }
+
     /// The pasteboard string when it parses as a web URL, so ⌘K can pre-fill the
     /// link target. Returns nil for ordinary copied text.
     private static func clipboardURL() -> String? {
-        guard let raw = NSPasteboard.general.string(forType: .string)?
-            .trimmingCharacters(in: .whitespacesAndNewlines), !raw.isEmpty else { return nil }
-        if let url = URL(string: raw), let scheme = url.scheme,
-           scheme == "http" || scheme == "https" {
-            return raw
-        }
-        if raw.hasPrefix("www."), raw.contains(".") { return "https://" + raw }
-        return nil
+        guard let raw = NSPasteboard.general.string(forType: .string) else { return nil }
+        return WebURL.normalized(raw)
     }
 }

@@ -19,15 +19,26 @@ struct EditorView: NSViewRepresentable {
     func makeCoordinator() -> Coordinator { Coordinator(self) }
 
     func makeNSView(context: Context) -> NSScrollView {
-        let scrollView = NSTextView.scrollableTextView()
+        let scrollView = NSScrollView()
         scrollView.hasVerticalScroller = true
         scrollView.hasHorizontalScroller = false
         scrollView.autohidesScrollers = true
         scrollView.borderType = .noBorder
 
-        guard let textView = scrollView.documentView as? NSTextView else {
-            return scrollView
-        }
+        // Build the text stack by hand (rather than NSTextView.scrollableTextView())
+        // so the document view is our `MownTextView` subclass, which the Tier 4
+        // editing actions (#7) need. Explicit TextKit 1 wiring keeps the
+        // highlighter's `NSTextStorageDelegate` and the line-number ruler's
+        // `layoutManager` use working as before.
+        let textStorage = NSTextStorage()
+        let layoutManager = NSLayoutManager()
+        textStorage.addLayoutManager(layoutManager)
+        let textContainer = NSTextContainer(size: NSSize(width: scrollView.contentSize.width,
+                                                         height: .greatestFiniteMagnitude))
+        layoutManager.addTextContainer(textContainer)
+        let textView = MownTextView(frame: NSRect(origin: .zero, size: scrollView.contentSize),
+                                    textContainer: textContainer)
+        scrollView.documentView = textView
 
         applyTheme(to: scrollView, textView: textView)
 
@@ -158,8 +169,16 @@ struct EditorView: NSViewRepresentable {
             let edit: ListEditing.Edit?
             switch commandSelector {
             case #selector(NSResponder.insertTab(_:)):
+                // Inside a Markdown table, Tab jumps to the next cell (#7); only
+                // outside one does it fall through to list indentation (#4).
+                if let jump = TableEditing.tabJump(text: text, selection: selection, reverse: false) {
+                    textView.apply(jump); return true
+                }
                 edit = ListEditing.indent(text: text, selection: selection)
             case #selector(NSResponder.insertBacktab(_:)):
+                if let jump = TableEditing.tabJump(text: text, selection: selection, reverse: true) {
+                    textView.apply(jump); return true
+                }
                 edit = ListEditing.outdent(text: text, selection: selection)
             case #selector(NSResponder.insertNewline(_:)):
                 edit = ListEditing.newline(text: text, selection: selection)
