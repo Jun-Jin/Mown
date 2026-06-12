@@ -38,33 +38,33 @@ struct MownApp: App {
                 }
             }
             CommandMenu("Format") {
-                FormatMenuItem("Bold", format: .bold, key: "b", modifiers: .command)
-                FormatMenuItem("Italic", format: .italic, key: "i", modifiers: .command)
-                // ⌘E is already bound to "Use Selection for Find"; inline code
-                // takes ⇧⌘C instead.
-                FormatMenuItem("Inline Code", format: .code, key: "c", modifiers: [.command, .shift])
-                FormatMenuItem("Strikethrough", format: .strikethrough, key: "x", modifiers: [.command, .shift])
+                // Every item's shortcut comes from AppSettings (defaults defined
+                // on FormatCommand), so the Settings ▸ Shortcuts pane can rebind
+                // any of them.
+                FormatCommandMenuItem(.bold, shortcut: settings.formatShortcut(.bold))
+                FormatCommandMenuItem(.italic, shortcut: settings.formatShortcut(.italic))
+                FormatCommandMenuItem(.code, shortcut: settings.formatShortcut(.code))
+                FormatCommandMenuItem(.strikethrough, shortcut: settings.formatShortcut(.strikethrough))
                 Divider()
-                FormatMenuItem("Link", format: .link, key: "k", modifiers: .command)
+                FormatCommandMenuItem(.link, shortcut: settings.formatShortcut(.link))
                 Divider()
                 Menu("Heading") {
-                    BlockFormatMenuItem("Heading 1", block: .heading(1), key: "1", modifiers: [.command, .shift])
-                    BlockFormatMenuItem("Heading 2", block: .heading(2), key: "2", modifiers: [.command, .shift])
-                    BlockFormatMenuItem("Heading 3", block: .heading(3), key: "3", modifiers: [.command, .shift])
-                    BlockFormatMenuItem("Heading 4", block: .heading(4), key: "4", modifiers: [.command, .shift])
-                    BlockFormatMenuItem("Heading 5", block: .heading(5), key: "5", modifiers: [.command, .shift])
-                    BlockFormatMenuItem("Heading 6", block: .heading(6), key: "6", modifiers: [.command, .shift])
+                    FormatCommandMenuItem(.heading1, shortcut: settings.formatShortcut(.heading1))
+                    FormatCommandMenuItem(.heading2, shortcut: settings.formatShortcut(.heading2))
+                    FormatCommandMenuItem(.heading3, shortcut: settings.formatShortcut(.heading3))
+                    FormatCommandMenuItem(.heading4, shortcut: settings.formatShortcut(.heading4))
+                    FormatCommandMenuItem(.heading5, shortcut: settings.formatShortcut(.heading5))
+                    FormatCommandMenuItem(.heading6, shortcut: settings.formatShortcut(.heading6))
                     Divider()
-                    BlockFormatMenuItem("Increase Level", block: .bumpHeading(1), key: "]", modifiers: .command)
-                    BlockFormatMenuItem("Decrease Level", block: .bumpHeading(-1), key: "[", modifiers: .command)
+                    FormatCommandMenuItem(.increaseHeading, shortcut: settings.formatShortcut(.increaseHeading))
+                    FormatCommandMenuItem(.decreaseHeading, shortcut: settings.formatShortcut(.decreaseHeading))
                 }
-                BlockFormatMenuItem("Blockquote", block: .blockquote, key: "'", modifiers: .command)
-                // ⇧⌘C is inline code; the code *block* takes ⌃⌘C.
-                BlockFormatMenuItem("Code Block", block: .codeBlock, key: "c", modifiers: [.control, .command])
-                BlockFormatMenuItem("Toggle Task", block: .taskToggle, key: "l", modifiers: [.command, .shift])
+                FormatCommandMenuItem(.blockquote, shortcut: settings.formatShortcut(.blockquote))
+                FormatCommandMenuItem(.codeBlock, shortcut: settings.formatShortcut(.codeBlock))
+                FormatCommandMenuItem(.taskToggle, shortcut: settings.formatShortcut(.taskToggle))
                 Divider()
-                BlockFormatMenuItem("Horizontal Rule", block: .horizontalRule)
-                BlockFormatMenuItem("Insert Table", block: .table)
+                FormatCommandMenuItem(.horizontalRule, shortcut: settings.formatShortcut(.horizontalRule))
+                FormatCommandMenuItem(.insertTable, shortcut: settings.formatShortcut(.insertTable))
             }
             CommandGroup(after: .toolbar) {
                 ViewModeMenuItem("Edit Mode", mode: .edit,
@@ -174,66 +174,32 @@ struct OptionalFormatAction: ViewModifier {
     }
 }
 
-/// A Format-menu item that applies an inline-formatting toggle to the focused
-/// editor. Disabled when no editor is focused (e.g. preview-only mode).
-private struct FormatMenuItem: View {
+/// A Format-menu item for a `FormatCommand`. Fires the command's inline or
+/// block action on the focused editor, applies its (rebindable) `shortcut`, and
+/// disables when no editor is focused (e.g. preview-only mode). The shortcut is
+/// passed in from `AppSettings` so the menu reflects the user's bindings.
+private struct FormatCommandMenuItem: View {
     @FocusedValue(\.formatText) private var formatText
-    private let title: String
-    private let format: InlineFormat
-    private let key: KeyEquivalent
-    private let modifiers: EventModifiers
-
-    init(_ title: String, format: InlineFormat, key: KeyEquivalent, modifiers: EventModifiers) {
-        self.title = title
-        self.format = format
-        self.key = key
-        self.modifiers = modifiers
-    }
-
-    var body: some View {
-        Button(title) { formatText?(format) }
-            .keyboardShortcut(key, modifiers: modifiers)
-            .disabled(formatText == nil)
-    }
-}
-
-/// A Format-menu item that applies a block-level action (Tier 3, #6) to the
-/// focused editor, with an optional keyboard shortcut. Disabled when no editor
-/// is focused.
-private struct BlockFormatMenuItem: View {
     @FocusedValue(\.formatBlock) private var formatBlock
-    private let title: String
-    private let block: BlockFormat
-    private let key: KeyEquivalent?
-    private let modifiers: EventModifiers
+    private let command: FormatCommand
+    private let shortcut: KeyboardShortcutSetting
 
-    init(_ title: String, block: BlockFormat, key: KeyEquivalent? = nil, modifiers: EventModifiers = []) {
-        self.title = title
-        self.block = block
-        self.key = key
-        self.modifiers = modifiers
+    init(_ command: FormatCommand, shortcut: KeyboardShortcutSetting) {
+        self.command = command
+        self.shortcut = shortcut
     }
 
     var body: some View {
-        Button(title) { formatBlock?(block) }
-            .modifier(OptionalKeyShortcut(key: key, modifiers: modifiers))
-            .disabled(formatBlock == nil)
-    }
-}
-
-/// Applies `.keyboardShortcut` only when a key is supplied, so menu items with
-/// no shortcut (e.g. Horizontal Rule) still render.
-private struct OptionalKeyShortcut: ViewModifier {
-    let key: KeyEquivalent?
-    let modifiers: EventModifiers
-
-    @ViewBuilder
-    func body(content: Content) -> some View {
-        if let key {
-            content.keyboardShortcut(key, modifiers: modifiers)
-        } else {
-            content
+        Button(command.title) {
+            if let inline = command.inline { formatText?(inline) }
+            else if let block = command.block { formatBlock?(block) }
         }
+        .modifier(OptionalShortcut(shortcut))
+        .disabled(isDisabled)
+    }
+
+    private var isDisabled: Bool {
+        command.inline != nil ? formatText == nil : formatBlock == nil
     }
 }
 

@@ -121,10 +121,36 @@ final class AppSettings: ObservableObject {
         didSet { defaults.set(showLineNumbers, forKey: Key.showLineNumbers) }
     }
 
+    /// User overrides for the Format-menu shortcuts, keyed by `FormatCommand`
+    /// raw value. Only entries that differ from the factory default are stored,
+    /// so a command with no entry uses `FormatCommand.defaultShortcut` and the
+    /// dictionary stays small. A `.none` entry means the user deliberately
+    /// cleared a command's shortcut.
+    @Published private var formatShortcutOverrides: [String: KeyboardShortcutSetting] {
+        didSet { writeFormatOverrides() }
+    }
+
+    /// The effective shortcut for a Format command: the user override if any,
+    /// otherwise the factory default.
+    func formatShortcut(_ command: FormatCommand) -> KeyboardShortcutSetting {
+        formatShortcutOverrides[command.rawValue] ?? command.defaultShortcut
+    }
+
+    /// Records (or clears) a Format command's shortcut. Setting it back to the
+    /// default drops the override so "Restore Defaults" stays meaningful.
+    func setFormatShortcut(_ command: FormatCommand, _ shortcut: KeyboardShortcutSetting) {
+        if shortcut == command.defaultShortcut {
+            formatShortcutOverrides[command.rawValue] = nil
+        } else {
+            formatShortcutOverrides[command.rawValue] = shortcut
+        }
+    }
+
     func resetShortcuts() {
         editModeShortcut = Self.defaultEditModeShortcut
         previewModeShortcut = Self.defaultPreviewModeShortcut
         splitModeShortcut = Self.defaultSplitModeShortcut
+        formatShortcutOverrides = [:]
     }
 
     // MARK: Persistence
@@ -138,6 +164,7 @@ final class AppSettings: ObservableObject {
         static let previewModeShortcut = "shortcut.previewMode"
         static let splitModeShortcut = "shortcut.splitMode"
         static let showLineNumbers = "editor.showLineNumbers"
+        static let formatShortcuts = "shortcut.format"
     }
 
     init(defaults: UserDefaults = .standard) {
@@ -156,6 +183,19 @@ final class AppSettings: ObservableObject {
         // editor affordance that surfacing them by default is friendlier than
         // hiding behind a setting nobody discovers.
         self.showLineNumbers = defaults.object(forKey: Key.showLineNumbers) as? Bool ?? true
+        self.formatShortcutOverrides = Self.readFormatOverrides(from: defaults)
+    }
+
+    private func writeFormatOverrides() {
+        guard let data = try? JSONEncoder().encode(formatShortcutOverrides) else { return }
+        defaults.set(data, forKey: Key.formatShortcuts)
+    }
+
+    private static func readFormatOverrides(from defaults: UserDefaults) -> [String: KeyboardShortcutSetting] {
+        guard let data = defaults.data(forKey: Key.formatShortcuts),
+              let decoded = try? JSONDecoder().decode([String: KeyboardShortcutSetting].self, from: data)
+        else { return [:] }
+        return decoded
     }
 
     private func write(_ value: KeyboardShortcutSetting, forKey key: String) {

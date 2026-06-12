@@ -68,12 +68,25 @@ private struct ShortcutSettingsView: View {
                 row("Preview Mode", shortcut: $settings.previewModeShortcut)
                 row("Split Mode", shortcut: $settings.splitModeShortcut)
             } header: {
-                Text("Keyboard Shortcuts")
+                Text("View")
             } footer: {
                 Text("Click a field and press the new combination. "
                      + "esc cancels, ⌫ clears.")
                 .font(.caption)
                 .foregroundStyle(.secondary)
+            }
+
+            Section {
+                formatRows(in: .inline)
+            } header: {
+                Text("Inline Formatting")
+            }
+
+            Section {
+                formatRows(in: .heading)
+                formatRows(in: .block)
+            } header: {
+                Text("Block Formatting")
             }
 
             Section {
@@ -88,6 +101,17 @@ private struct ShortcutSettingsView: View {
         LabeledContent(title) {
             ShortcutRecorder(shortcut: shortcut)
                 .frame(width: 150, height: 22)
+        }
+    }
+
+    /// One recorder row per Format command in `group`, bound through
+    /// `AppSettings` so a change persists and updates the menu.
+    private func formatRows(in group: FormatCommand.Group) -> some View {
+        ForEach(FormatCommand.allCases.filter { $0.group == group }) { command in
+            row(command.title, shortcut: Binding(
+                get: { settings.formatShortcut(command) },
+                set: { settings.setFormatShortcut(command, $0) }
+            ))
         }
     }
 }
