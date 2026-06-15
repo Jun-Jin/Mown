@@ -89,7 +89,7 @@ Always on in the editor:
 | Bold / Italic                | `⌘B` / `⌘I`        |
 | Inline code / Strikethrough  | `⇧⌘C` / `⇧⌘X`      |
 | Link                         | `⌘K`               |
-| Heading 1–6                  | `⇧⌘1` … `⇧⌘6`      |
+| Heading 1–6                  | `⌥⌘1` … `⌥⌘6`      |
 | Increase / decrease level    | `⌘]` / `⌘[`        |
 | Blockquote                   | `⌘'`               |
 | Code block                   | `⌃⌘C`              |
