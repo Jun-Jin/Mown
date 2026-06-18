@@ -3,3 +3,7 @@
 /dist/
 .swiftpm/
 Mown.zip
+
+# Local Claude Code state (skills kept private; release logic lives in scripts/)
+.claude/skills/
+.claude/projects/

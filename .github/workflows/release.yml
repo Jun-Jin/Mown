@@ -2,7 +2,7 @@ name: Release
 
 # Build, codesign (Developer ID), notarize, staple, and package Mown, then
 # attach the artifacts to a GitHub Release. Mirrors the local
-# `.claude/skills/release/release.sh` pipeline — the same script runs here,
+# `scripts/release.sh` pipeline — the same script runs here,
 # unmodified; CI only reconstructs the keychain state it expects (a Developer
 # ID identity + a "MownNotary" notary profile) from repository secrets.
 #
@@ -82,7 +82,7 @@ jobs:
             --password "$NOTARY_APP_PASSWORD"
 
       - name: Build · sign · notarize · staple · package
-        run: bash .claude/skills/release/release.sh --dmg
+        run: bash scripts/release.sh --dmg
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4

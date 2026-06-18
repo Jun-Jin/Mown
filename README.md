@@ -98,7 +98,7 @@ Always on in the editor:
 
 ## Releasing
 
-`./.github/workflows/release.yml` builds, codesigns (Developer ID), notarizes, staples, and publishes a GitHub Release when you push a tag matching `v*`. The same pipeline runs locally via `bash .claude/skills/release/release.sh --dmg`.
+`./.github/workflows/release.yml` builds, codesigns (Developer ID), notarizes, staples, and publishes a GitHub Release when you push a tag matching `v*`. The same pipeline runs locally via `bash scripts/release.sh --dmg`.
 
 Required repository secrets: 
 

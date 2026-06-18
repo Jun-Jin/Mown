@@ -26,11 +26,11 @@
 #      too: store-credentials --key / --key-id / --issuer.
 #
 # ── Usage ────────────────────────────────────────────────────────────────────
-#   bash .claude/skills/release/release.sh                 # sign + notarize + staple + zip
-#   bash .claude/skills/release/release.sh --dmg           # also build a notarized DMG
-#   bash .claude/skills/release/release.sh --no-notarize   # sign only (local smoke test)
+#   bash scripts/release.sh                 # sign + notarize + staple + zip
+#   bash scripts/release.sh --dmg           # also build a notarized DMG
+#   bash scripts/release.sh --no-notarize   # sign only (local smoke test)
 #   NOTARY_PROFILE=MownNotary IDENTITY="Developer ID Application: …" \
-#       bash .claude/skills/release/release.sh             # override autodetected values
+#       bash scripts/release.sh             # override autodetected values
 set -euo pipefail
 
 NOTARIZE=1
@@ -45,7 +45,7 @@ for arg in "$@"; do
     esac
 done
 
-REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$REPO_ROOT"
 
 PROJECT="Mown.xcodeproj"
