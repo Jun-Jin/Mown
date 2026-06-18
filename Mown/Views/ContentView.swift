@@ -7,7 +7,9 @@ struct ContentView: View {
     var fileURL: URL? = nil
     @EnvironmentObject private var settings: AppSettings
     @Environment(\.colorScheme) private var colorScheme
-    @State private var viewMode: ViewMode = .edit
+    /// Opened files start in preview ("view") mode; untitled ⌘N/⌘T documents
+    /// start in edit mode since there's nothing to preview yet. Set in `init`.
+    @State private var viewMode: ViewMode
     @State private var renderedHTML: String = ""
     @State private var floatingPickerVisible = false
     /// Size of the content area, captured via a background `GeometryReader` so
@@ -23,6 +25,12 @@ struct ContentView: View {
     @StateObject private var scrollSync = ScrollSync()
     /// Bridges the Format menu to this window's editor text view.
     @StateObject private var editorActions = EditorActions()
+
+    init(document: Binding<MarkdownDocument>, fileURL: URL? = nil) {
+        self._document = document
+        self.fileURL = fileURL
+        self._viewMode = State(initialValue: fileURL != nil ? .preview : .edit)
+    }
 
     /// Resolves the preview's effective light/dark, deferring to the live
     /// system appearance when the user's choice is `.system`.
