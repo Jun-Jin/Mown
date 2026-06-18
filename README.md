@@ -22,6 +22,17 @@ See [SPEC.md](./SPEC.md) for the full design doc.
 
 ## Install
 
+### Homebrew
+
+```sh
+brew tap jun-jin/mown
+brew install --cask mown
+```
+
+Installs the notarized **Mown.app** into `/Applications` and puts the bundled `mown` CLI on your `PATH`. (Recent Homebrew gates third-party taps: if the install is refused as an "untrusted tap", run `brew trust jun-jin/mown` once and retry.) Upgrade with `brew upgrade --cask mown`; remove with `brew uninstall --cask mown` (add `--zap` to also delete preferences).
+
+The tap lives in [Jun-Jin/homebrew-mown](https://github.com/Jun-Jin/homebrew-mown).
+
 ### From a notarized DMG
 
 Download the latest `Mown-<version>.dmg` from the [Releases](https://github.com/Jun-Jin/Mown/releases/latest) page, open it, and drag **Mown.app** to **Applications**. The DMG is Developer ID-signed and notarized, so Gatekeeper opens it without warning.

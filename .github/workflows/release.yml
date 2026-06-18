@@ -1,14 +1,19 @@
 name: Release
 
-# Build, codesign (Developer ID), notarize, staple, and package Mown, then
-# attach the artifacts to a GitHub Release. Mirrors the local
-# `scripts/release.sh` pipeline — the same script runs here,
-# unmodified; CI only reconstructs the keychain state it expects (a Developer
-# ID identity + a "MownNotary" notary profile) from repository secrets.
+# Build, codesign (Developer ID), notarize, staple, and package Mown, attach
+# the artifacts to a GitHub Release, then bump the Homebrew cask in the separate
+# Jun-Jin/homebrew-mown tap. Mirrors the local `scripts/release.sh` pipeline —
+# the same script runs here, unmodified; CI only reconstructs the keychain state
+# it expects (a Developer ID identity + a "MownNotary" notary profile) from
+# repository secrets.
 #
 # Triggers:
-#   - push a tag like `v0.1.0`  → builds and publishes a GitHub Release
+#   - push a tag like `v0.1.0`  → builds, publishes a Release, bumps the tap
 #   - manual "Run workflow"     → builds and uploads artifacts only (no Release)
+#
+# Secrets used: DEVELOPER_ID_P12_BASE64, P12_PASSWORD, NOTARY_APPLE_ID,
+# NOTARY_TEAM_ID, NOTARY_APP_PASSWORD, and HOMEBREW_TAP_TOKEN (a fine-grained
+# PAT with Contents: read/write on homebrew-mown, for the cross-repo cask bump).
 
 on:
   push:
@@ -100,3 +105,46 @@ jobs:
         run: |
           gh release create "$GITHUB_REF_NAME" dist/*.zip dist/*.dmg \
             --title "Mown $GITHUB_REF_NAME" --generate-notes
+
+      # ── Bump the Homebrew cask in the separate tap repo ──────────────────────
+      # The cask lives in Jun-Jin/homebrew-mown, a different repo, so the
+      # built-in GITHUB_TOKEN (scoped to this repo) can't push to it. A
+      # fine-grained PAT with Contents: read/write on homebrew-mown, stored as
+      # the HOMEBREW_TAP_TOKEN secret, authorizes the cross-repo push. Runs only
+      # on tag builds, after the release assets exist (the cask url points at
+      # them). A failure here flags a stale tap without un-publishing the release.
+      - name: Check out Homebrew tap
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: actions/checkout@v4
+        with:
+          repository: Jun-Jin/homebrew-mown
+          token: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+          path: homebrew-tap
+
+      - name: Bump cask to released version
+        if: startsWith(github.ref, 'refs/tags/')
+        working-directory: homebrew-tap
+        run: |
+          set -euo pipefail
+          VERSION="${GITHUB_REF_NAME#v}"
+          ZIP="$GITHUB_WORKSPACE/dist/Mown-${VERSION}.zip"
+          [ -f "$ZIP" ] || { echo "::error::$ZIP not found"; exit 1; }
+          # Hash the exact artifact that was just uploaded to the Release.
+          SHA="$(shasum -a 256 "$ZIP" | awk '{print $1}')"
+          echo "Bumping cask → version $VERSION, sha256 $SHA"
+
+          # BSD sed (macOS runner): rewrite the pinned version + checksum.
+          sed -i '' -E \
+            -e "s/^  version \".*\"/  version \"${VERSION}\"/" \
+            -e "s/^  sha256 \".*\"/  sha256 \"${SHA}\"/" \
+            Casks/mown.rb
+
+          if git diff --quiet; then
+            echo "Cask already at ${VERSION}; nothing to commit."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -am "mown ${VERSION}"
+          git push
