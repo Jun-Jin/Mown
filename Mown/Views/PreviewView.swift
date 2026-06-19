@@ -115,17 +115,72 @@ struct PreviewView: NSViewRepresentable {
         private weak var lastWebView: WKWebView?
         private var navigationReady = false
 
-        // Open external links in the user's browser instead of inside the preview.
+        // Route activated links by a single click: a sibling Markdown file
+        // opens as a new Mown tab; everything else (http(s), mailto, other local
+        // files) goes to the system handler. Pure in-page section links are
+        // handled page-side (see PreviewTemplate) and never reach here, so
+        // `.allow` is reserved for the document load itself.
         func webView(_ webView: WKWebView,
                      decidePolicyFor navigationAction: WKNavigationAction,
                      decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
-            if navigationAction.navigationType == .linkActivated,
-               let url = navigationAction.request.url {
-                NSWorkspace.shared.open(url)
-                decisionHandler(.cancel)
+            guard navigationAction.navigationType == .linkActivated,
+                  let url = navigationAction.request.url else {
+                decisionHandler(.allow)
                 return
             }
-            decisionHandler(.allow)
+            decisionHandler(.cancel)
+            route(url: url)
+        }
+
+        /// Dispatches an activated link to a new tab or the system handler.
+        /// See `decidePolicyFor` for the routing policy.
+        private func route(url: URL) {
+            // A sibling-file link (served over the doc scheme, or an absolute
+            // file URL) opens as a new tab when it's Markdown, otherwise via the
+            // system handler.
+            if let fileURL = resolvedFileURL(for: url) {
+                if Self.isMarkdown(fileURL) {
+                    openMarkdownTab(fileURL)
+                } else {
+                    NSWorkspace.shared.open(fileURL)
+                }
+                return
+            }
+            // http(s), mailto, and anything else: hand off to the system.
+            NSWorkspace.shared.open(url)
+        }
+
+        /// Maps a link to a real file on disk when it names a sibling of the
+        /// current document, returning `nil` for non-file links (http(s),
+        /// mailto, …) and for the bare doc root (a pure `#fragment`, which is
+        /// handled page-side and shouldn't reach here).
+        private func resolvedFileURL(for url: URL) -> URL? {
+            if url.isFileURL { return url }
+            guard url.scheme == PreviewSchemeHandler.scheme, url.host == "doc",
+                  let dir = schemeHandler.docDirectory else { return nil }
+            let rel = url.path.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
+            guard !rel.isEmpty else { return nil }
+            let candidate = dir.appendingPathComponent(rel).standardized
+            // Refuse paths that escape the document's directory via `..`.
+            guard candidate.path.hasPrefix(dir.standardized.path) else { return nil }
+            return candidate
+        }
+
+        /// Opens a Markdown file as a new tab through the same file-backed
+        /// document path as File ▸ Open and the `mown` CLI, so it joins the
+        /// current window's tab group. Re-opening an already-open file just
+        /// focuses its existing tab (NSDocumentController dedupes by URL).
+        private func openMarkdownTab(_ url: URL) {
+            NSDocumentController.shared.openDocument(withContentsOf: url, display: true) { _, _, error in
+                if let error {
+                    NSLog("Mown: couldn't open \(url.path) as a tab: \(error.localizedDescription)")
+                }
+            }
+        }
+
+        private static func isMarkdown(_ url: URL) -> Bool {
+            ["md", "markdown", "mdown", "mkd", "mkdn", "mdwn", "mdtext", "rmd"]
+                .contains(url.pathExtension.lowercased())
         }
 
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {

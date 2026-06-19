@@ -47,6 +47,46 @@ enum PreviewTemplate {
         \(katexTag)
         <script>
         (function () {
+            // Give headings GitHub-style slug ids so in-page section links
+            // (`[x](#my-heading)`) have a target to scroll to — cmark doesn't
+            // emit these. Collisions get a numeric suffix (`-1`, `-2`, …),
+            // matching GitHub so links authored for GitHub resolve here too.
+            (function () {
+                var counts = {};
+                function slugify(text) {
+                    return text.trim().toLowerCase()
+                        .replace(/[^\\p{L}\\p{N}\\p{M}\\- ]+/gu, '')
+                        .replace(/ +/g, '-');
+                }
+                document.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach(function (h) {
+                    if (h.id) return;
+                    var base = slugify(h.textContent || '');
+                    if (!base) return;
+                    var slug = base;
+                    if (counts[base] == null) { counts[base] = 0; }
+                    else { counts[base] += 1; slug = base + '-' + counts[base]; }
+                    h.id = slug;
+                });
+            })();
+
+            // A bare `#section` link scrolls within the page. Doing it here
+            // (instead of relying on the native fragment jump) lets us animate
+            // and gives one consistent code path. Every other link — sibling
+            // Markdown files and external URLs — is left for the native
+            // navigation delegate (see PreviewView), which routes them to a new
+            // tab or the browser.
+            document.addEventListener('click', function (e) {
+                var a = e.target.closest ? e.target.closest('a[href]') : null;
+                if (!a) return;
+                var href = a.getAttribute('href') || '';
+                if (href.charAt(0) !== '#') return;       // not an in-page link
+                var id = decodeURIComponent(href.slice(1));
+                var target = document.getElementById(id) || document.getElementsByName(id)[0];
+                if (!target) return;
+                e.preventDefault();
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            });
+
             // Turn ```mermaid fences (<pre lang="mermaid">) into mermaid
             // containers *before* highlight.js runs, so they render as diagrams
             // rather than being syntax-highlighted as source.
