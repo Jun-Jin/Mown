@@ -50,6 +50,12 @@ struct PreviewView: NSViewRepresentable {
                                          name: PreviewScrollBridge.messageName)
         config.userContentController.addUserScript(PreviewScrollBridge.userScript)
 
+        // Clicking a rendered Mermaid diagram posts its SVG here so the
+        // coordinator can pop it out into a larger window (see PreviewTemplate
+        // for the page-side click delegation).
+        config.userContentController.add(context.coordinator,
+                                         name: MermaidZoom.messageName)
+
         let webView = WKWebView(frame: .zero, configuration: config)
         webView.setValue(false, forKey: "drawsBackground") // let CSS background show through
         webView.allowsBackForwardNavigationGestures = false
@@ -68,6 +74,7 @@ struct PreviewView: NSViewRepresentable {
     func updateNSView(_ webView: WKWebView, context: Context) {
         webView.appearance = NSAppearance(named: isDark ? .darkAqua : .aqua)
         if webView.pageZoom != CGFloat(zoom) { webView.pageZoom = CGFloat(zoom) }
+        context.coordinator.isDark = isDark
         context.coordinator.currentZoom = zoom
         context.coordinator.onZoomChange = onZoomChange
         context.coordinator.schemeHandler.docDirectory = baseURL
@@ -88,6 +95,9 @@ struct PreviewView: NSViewRepresentable {
 
     final class Coordinator: NSObject, WKNavigationDelegate, WKScriptMessageHandler {
         let schemeHandler = PreviewSchemeHandler()
+        /// Latest effective appearance, mirrored from `updateNSView`, so a popped
+        /// diagram window can match the preview's light/dark.
+        var isDark = false
         /// Live zoom factor, mirrored from `updateNSView`; the pinch gesture reads
         /// it at gesture start so each pinch compounds from the current zoom.
         var currentZoom: Double = 1.0
@@ -150,6 +160,11 @@ struct PreviewView: NSViewRepresentable {
 
         func userContentController(_ userContentController: WKUserContentController,
                                    didReceive message: WKScriptMessage) {
+            if message.name == MermaidZoom.messageName, let svg = message.body as? String {
+                MermaidZoomWindowController.present(svg: svg, isDark: isDark,
+                                                    relativeTo: message.webView?.window)
+                return
+            }
             guard message.name == PreviewScrollBridge.messageName,
                   let value = message.body as? NSNumber,
                   let sync = boundSync else { return }

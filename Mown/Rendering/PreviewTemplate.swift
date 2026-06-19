@@ -37,6 +37,7 @@ enum PreviewTemplate {
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <style>\(appCSS)</style>
         <style>\(hljsCSS)</style>
+        <style>.markdown-body .mermaid { cursor: zoom-in; }</style>
         \(katexStyle)
         </head>
         <body class="markdown-body">
@@ -84,6 +85,19 @@ enum PreviewTemplate {
                     } catch (_) {}
                 });
             }
+
+            // Click a rendered diagram to pop it out at full size. Delegated off
+            // the document so it works no matter when mermaid (async) finishes
+            // injecting each <svg>.
+            document.addEventListener('click', function (e) {
+                var node = e.target.closest ? e.target.closest('.mermaid') : null;
+                if (!node) return;
+                var svg = node.querySelector('svg');
+                if (!svg) return;
+                try {
+                    window.webkit.messageHandlers.\(MermaidZoom.messageName).postMessage(svg.outerHTML);
+                } catch (_) {}
+            });
         })();
         </script>
         </body>
