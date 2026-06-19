@@ -29,6 +29,13 @@ enum PreviewTemplate {
             : ""
         let katexTag = needsKaTeX ? #"<script src="mownres://res/katex.min.js"></script>"# : ""
 
+        // Browser-style hover status bar (bottom-left), themed to match the
+        // preview. Shows the raw `href` the author wrote — cleaner than the
+        // resolved internal `mownres://doc/…` URL.
+        let statusFG = isDark ? "#9da5b4" : "#57606a"
+        let statusBG = isDark ? "#21252b" : "#f6f8fa"
+        let statusBorder = isDark ? "#3a3f4b" : "#d0d7de"
+
         return """
         <!DOCTYPE html>
         <html lang="en">
@@ -38,6 +45,30 @@ enum PreviewTemplate {
         <style>\(appCSS)</style>
         <style>\(hljsCSS)</style>
         <style>.markdown-body .mermaid { cursor: zoom-in; }</style>
+        <style>
+        #mown-link-status {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            max-width: 70%;
+            padding: 1px 8px;
+            font-size: 11px;
+            line-height: 1.6;
+            color: \(statusFG);
+            background: \(statusBG);
+            border-top: 1px solid \(statusBorder);
+            border-right: 1px solid \(statusBorder);
+            border-top-right-radius: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            pointer-events: none;
+            z-index: 2147483647;
+            opacity: 0;
+            transition: opacity 0.08s ease-out;
+        }
+        #mown-link-status.visible { opacity: 1; }
+        </style>
         \(katexStyle)
         </head>
         <body class="markdown-body">
@@ -86,6 +117,31 @@ enum PreviewTemplate {
                 e.preventDefault();
                 target.scrollIntoView({ behavior: 'smooth', block: 'start' });
             });
+
+            // Browser-style hover hint: show the link's href in a small status
+            // bar at the bottom-left while the pointer is over it, and hide it
+            // otherwise (including when the pointer leaves the window).
+            (function () {
+                var status = document.createElement('div');
+                status.id = 'mown-link-status';
+                document.body.appendChild(status);
+                function show(text) {
+                    status.textContent = text;
+                    status.classList.add('visible');
+                }
+                function hide() {
+                    status.classList.remove('visible');
+                    status.textContent = '';
+                }
+                document.addEventListener('mouseover', function (e) {
+                    var a = e.target.closest ? e.target.closest('a[href]') : null;
+                    if (a) { show(a.getAttribute('href') || ''); } else { hide(); }
+                });
+                // Pointer left the document entirely (relatedTarget is null).
+                document.addEventListener('mouseout', function (e) {
+                    if (!e.relatedTarget) hide();
+                });
+            })();
 
             // Turn ```mermaid fences (<pre lang="mermaid">) into mermaid
             // containers *before* highlight.js runs, so they render as diagrams
