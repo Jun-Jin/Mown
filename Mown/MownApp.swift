@@ -73,6 +73,17 @@ struct MownApp: App {
                                  shortcut: settings.previewModeShortcut)
                 ViewModeMenuItem("Split Mode", mode: .split,
                                  shortcut: settings.splitModeShortcut)
+                Divider()
+                // Browser-style zoom for the preview pane. Fixed ⌘+/⌘-/⌘0 to
+                // match the platform convention; they drive the shared
+                // `previewZoom` setting, so every window's preview tracks them.
+                Button("Zoom In") { settings.zoomInPreview() }
+                    .keyboardShortcut("+", modifiers: .command)
+                Button("Zoom Out") { settings.zoomOutPreview() }
+                    .keyboardShortcut("-", modifiers: .command)
+                Button("Actual Size") { settings.resetPreviewZoom() }
+                    .keyboardShortcut("0", modifiers: .command)
+                Divider()
                 // Full Screen is a fixed ⌘↵, not rebindable.
                 Button("Toggle Full Screen") {
                     NSApp.keyWindow?.toggleFullScreen(nil)

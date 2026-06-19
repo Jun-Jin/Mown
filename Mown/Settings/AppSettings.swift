@@ -97,6 +97,12 @@ final class AppSettings: ObservableObject {
     static let defaultPreviewModeShortcut = KeyboardShortcutSetting(key: "h", modifiers: [.command, .shift])
     static let defaultSplitModeShortcut = KeyboardShortcutSetting(key: "g", modifiers: [.command, .shift])
 
+    /// Discrete zoom stops the preview steps through on Zoom In/Out, mirroring
+    /// the way browsers snap between fixed levels rather than scaling smoothly.
+    /// `1.0` (100%) is the "Actual Size" baseline and must be one of the stops.
+    static let previewZoomLevels: [Double] = [0.5, 0.67, 0.8, 0.9, 1.0, 1.1, 1.25, 1.5, 1.75, 2.0, 2.5, 3.0]
+    static let defaultPreviewZoom: Double = 1.0
+
     @Published var editorTheme: AppTheme {
         didSet { defaults.set(editorTheme.rawValue, forKey: Key.editorTheme) }
     }
@@ -119,6 +125,36 @@ final class AppSettings: ObservableObject {
 
     @Published var showLineNumbers: Bool {
         didSet { defaults.set(showLineNumbers, forKey: Key.showLineNumbers) }
+    }
+
+    /// Browser-style zoom factor for the preview pane, shared by every window's
+    /// preview (and the split-mode preview). `1.0` is 100%. Clamped to the
+    /// `previewZoomLevels` range on write so a stray value can't push the page
+    /// to an unreadable size.
+    @Published var previewZoom: Double {
+        didSet {
+            let clamped = min(max(previewZoom, Self.previewZoomLevels.first!),
+                              Self.previewZoomLevels.last!)
+            if clamped != previewZoom { previewZoom = clamped; return }
+            defaults.set(previewZoom, forKey: Key.previewZoom)
+        }
+    }
+
+    /// Steps the preview zoom up to the next discrete stop. No-op at the top.
+    func zoomInPreview() {
+        previewZoom = Self.previewZoomLevels.first { $0 > previewZoom + 0.0001 }
+            ?? Self.previewZoomLevels.last!
+    }
+
+    /// Steps the preview zoom down to the previous discrete stop. No-op at the bottom.
+    func zoomOutPreview() {
+        previewZoom = Self.previewZoomLevels.last { $0 < previewZoom - 0.0001 }
+            ?? Self.previewZoomLevels.first!
+    }
+
+    /// Restores the preview to 100% ("Actual Size").
+    func resetPreviewZoom() {
+        previewZoom = Self.defaultPreviewZoom
     }
 
     /// User overrides for the Format-menu shortcuts, keyed by `FormatCommand`
@@ -165,6 +201,7 @@ final class AppSettings: ObservableObject {
         static let splitModeShortcut = "shortcut.splitMode"
         static let showLineNumbers = "editor.showLineNumbers"
         static let formatShortcuts = "shortcut.format"
+        static let previewZoom = "preview.zoom"
     }
 
     init(defaults: UserDefaults = .standard) {
@@ -183,6 +220,7 @@ final class AppSettings: ObservableObject {
         // editor affordance that surfacing them by default is friendlier than
         // hiding behind a setting nobody discovers.
         self.showLineNumbers = defaults.object(forKey: Key.showLineNumbers) as? Bool ?? true
+        self.previewZoom = (defaults.object(forKey: Key.previewZoom) as? Double) ?? Self.defaultPreviewZoom
         self.formatShortcutOverrides = Self.readFormatOverrides(from: defaults)
     }
 

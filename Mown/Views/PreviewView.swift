@@ -17,6 +17,15 @@ struct PreviewView: NSViewRepresentable {
     let baseURL: URL?
     /// Shared scroll-fraction bus used in split mode. `nil` outside split.
     var scrollSync: ScrollSync? = nil
+    /// Browser-style zoom factor (1.0 = 100%). Applied via `WKWebView.pageZoom`,
+    /// which scales text and layout together and survives the per-keystroke
+    /// `loadHTMLString` reloads since it lives on the web view, not the document.
+    var zoom: Double = 1.0
+    /// Called with a new zoom factor as the user pinch-zooms the preview. The
+    /// owner writes it back to the shared `previewZoom` setting, which then
+    /// flows in again through `zoom` — so pinch and the ⌘+/⌘-/⌘0 menu share one
+    /// source of truth. `nil` disables pinch zoom.
+    var onZoomChange: ((Double) -> Void)? = nil
 
     func makeNSView(context: Context) -> WKWebView {
         let config = WKWebViewConfiguration()
@@ -45,11 +54,22 @@ struct PreviewView: NSViewRepresentable {
         webView.setValue(false, forKey: "drawsBackground") // let CSS background show through
         webView.allowsBackForwardNavigationGestures = false
         webView.navigationDelegate = context.coordinator
+
+        // Trackpad pinch drives the shared zoom (pageZoom) rather than WKWebView's
+        // built-in magnification, so a pinch reflows text/layout exactly like the
+        // menu zoom and persists, instead of scaling the rendered pixels.
+        let pinch = NSMagnificationGestureRecognizer(
+            target: context.coordinator,
+            action: #selector(Coordinator.handleMagnify(_:)))
+        webView.addGestureRecognizer(pinch)
         return webView
     }
 
     func updateNSView(_ webView: WKWebView, context: Context) {
         webView.appearance = NSAppearance(named: isDark ? .darkAqua : .aqua)
+        if webView.pageZoom != CGFloat(zoom) { webView.pageZoom = CGFloat(zoom) }
+        context.coordinator.currentZoom = zoom
+        context.coordinator.onZoomChange = onZoomChange
         context.coordinator.schemeHandler.docDirectory = baseURL
         context.coordinator.attachScrollSync(webView: webView, sync: scrollSync)
         let full = PreviewTemplate.wrap(bodyHTML: html, isDark: isDark)
@@ -68,6 +88,14 @@ struct PreviewView: NSViewRepresentable {
 
     final class Coordinator: NSObject, WKNavigationDelegate, WKScriptMessageHandler {
         let schemeHandler = PreviewSchemeHandler()
+        /// Live zoom factor, mirrored from `updateNSView`; the pinch gesture reads
+        /// it at gesture start so each pinch compounds from the current zoom.
+        var currentZoom: Double = 1.0
+        /// Reports pinch-driven zoom changes back to the owner.
+        var onZoomChange: ((Double) -> Void)?
+        /// Zoom captured at the start of a pinch — the magnification delta is
+        /// applied relative to this so the gesture feels anchored.
+        private var pinchBaseZoom: Double = 1.0
         private(set) weak var boundSync: ScrollSync?
         private var syncCancellable: AnyCancellable?
         /// Last fraction received from the editor; replayed once the page
@@ -100,6 +128,22 @@ struct PreviewView: NSViewRepresentable {
 
         func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
             navigationReady = false
+        }
+
+        // MARK: - Pinch zoom
+
+        @objc func handleMagnify(_ recognizer: NSMagnificationGestureRecognizer) {
+            switch recognizer.state {
+            case .began:
+                pinchBaseZoom = currentZoom
+            case .changed, .ended:
+                // `magnification` is the cumulative delta since the gesture began
+                // (0 at start). Out-of-range results are clamped by the setting's
+                // own writer, so no clamping is needed here.
+                onZoomChange?(pinchBaseZoom * (1 + recognizer.magnification))
+            default:
+                break
+            }
         }
 
         // MARK: - Scroll bridge

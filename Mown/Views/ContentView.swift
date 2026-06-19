@@ -112,12 +112,12 @@ struct ContentView: View {
         case .edit:
             EditorView(text: $document.text, theme: settings.editorTheme, showLineNumbers: settings.showLineNumbers, editorActions: editorActions)
         case .preview:
-            PreviewView(html: renderedHTML, isDark: previewIsDark, baseURL: fileURL?.deletingLastPathComponent())
+            PreviewView(html: renderedHTML, isDark: previewIsDark, baseURL: fileURL?.deletingLastPathComponent(), zoom: settings.previewZoom, onZoomChange: { settings.previewZoom = $0 })
         case .split:
             HSplitView {
                 EditorView(text: $document.text, theme: settings.editorTheme, scrollSync: scrollSync, showLineNumbers: settings.showLineNumbers, editorActions: editorActions)
                     .frame(minWidth: 240)
-                PreviewView(html: renderedHTML, isDark: previewIsDark, baseURL: fileURL?.deletingLastPathComponent(), scrollSync: scrollSync)
+                PreviewView(html: renderedHTML, isDark: previewIsDark, baseURL: fileURL?.deletingLastPathComponent(), scrollSync: scrollSync, zoom: settings.previewZoom, onZoomChange: { settings.previewZoom = $0 })
                     .frame(minWidth: 240)
             }
         }
