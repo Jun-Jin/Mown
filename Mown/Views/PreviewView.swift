@@ -72,14 +72,15 @@ struct PreviewView: NSViewRepresentable {
     }
 
     func updateNSView(_ webView: WKWebView, context: Context) {
+        let coord = context.coordinator
         webView.appearance = NSAppearance(named: isDark ? .darkAqua : .aqua)
         if webView.pageZoom != CGFloat(zoom) { webView.pageZoom = CGFloat(zoom) }
-        context.coordinator.isDark = isDark
-        context.coordinator.currentZoom = zoom
-        context.coordinator.onZoomChange = onZoomChange
-        context.coordinator.schemeHandler.docDirectory = baseURL
-        context.coordinator.attachScrollSync(webView: webView, sync: scrollSync)
-        let full = PreviewTemplate.wrap(bodyHTML: html, isDark: isDark)
+        coord.isDark = isDark
+        coord.currentZoom = zoom
+        coord.onZoomChange = onZoomChange
+        coord.schemeHandler.docDirectory = baseURL
+        coord.attachScrollSync(webView: webView, sync: scrollSync)
+
         // baseURL drives relative-path resolution in the loaded HTML:
         //   - With a doc URL, use `mownres://doc/` so `<img src="x.png">`
         //     becomes `mownres://doc/x.png` and gets served from the doc dir.
@@ -88,13 +89,34 @@ struct PreviewView: NSViewRepresentable {
         let base = baseURL != nil
             ? URL(string: "\(PreviewSchemeHandler.scheme)://doc/")
             : Bundle.main.resourceURL
-        webView.loadHTMLString(full, baseURL: base)
+
+        // SwiftUI invokes updateNSView for many reasons that don't touch the
+        // rendered page — app reactivation (focus republishes the focused-scene
+        // values), a window resize, a parent re-render. A fresh loadHTMLString
+        // reloads the page and resets its scroll to the top, so only reload when
+        // the body HTML, appearance, or base URL actually changed. Otherwise the
+        // preview keeps its scroll position across app switches. Zoom and
+        // appearance above are applied every time — they're cheap and don't
+        // reset scroll.
+        guard coord.loadedHTML != html
+                || coord.loadedIsDark != isDark
+                || coord.loadedBase != base else { return }
+        coord.loadedHTML = html
+        coord.loadedIsDark = isDark
+        coord.loadedBase = base
+        webView.loadHTMLString(PreviewTemplate.wrap(bodyHTML: html, isDark: isDark), baseURL: base)
     }
 
     func makeCoordinator() -> Coordinator { Coordinator() }
 
     final class Coordinator: NSObject, WKNavigationDelegate, WKScriptMessageHandler {
         let schemeHandler = PreviewSchemeHandler()
+        /// Inputs behind the page currently loaded in the web view, so
+        /// `updateNSView` can skip redundant `loadHTMLString` calls — each reload
+        /// resets scroll to the top. See `updateNSView`.
+        var loadedHTML: String?
+        var loadedIsDark: Bool?
+        var loadedBase: URL?
         /// Latest effective appearance, mirrored from `updateNSView`, so a popped
         /// diagram window can match the preview's light/dark.
         var isDark = false
