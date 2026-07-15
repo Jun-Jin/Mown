@@ -27,8 +27,8 @@ body.markdown-body {
     line-height: 1.6;
     padding: 24px 32px;
     word-wrap: break-word;
-    max-width: 980px;
-    margin: 0 auto;
+    max-width: none;
+    margin: 0;
 }
 
 .markdown-body > *:first-child { margin-top: 0; }
