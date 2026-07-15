@@ -17,6 +17,7 @@ A native macOS Markdown editor — fast, offline, zero telemetry. SwiftUI + `NST
 - **Tabbed windows** — `⌘N` opens a new window, `⌘T` opens a new tab; opens from Finder / Recents join the current window as tabs.
 - **`mown` CLI** — opens files from the terminal. Install in one click from Settings.
 - Full document model from SwiftUI's `DocumentGroup`: New / Open / Save / Save As / Revert / Recent, autosave, versions, unsaved-changes indicator.
+- **Reload from disk** (`⌘R`) — re-read the open file when another program (a formatter, `git checkout`, a sync client) has changed it underneath you; prompts first if you have unsaved edits.
 
 See [SPEC.md](./SPEC.md) for the full design doc.
 
@@ -75,6 +76,7 @@ mown --help           # show usage
 | New tab                | `⌘T`          |
 | Open                   | `⌘O`          |
 | Save / Save As         | `⌘S` / `⇧⌘S` |
+| Reload from disk        | `⌘R`          |
 | Edit / Preview / Split | `⇧⌘E` / `⇧⌘H` / `⇧⌘G` (rebindable in Settings ▸ Shortcuts) |
 | Toggle Full Screen     | `⌘↩`          |
 

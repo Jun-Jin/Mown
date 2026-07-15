@@ -46,6 +46,7 @@ The window has a segmented control that switches between three modes:
 ### 3.4 File Operations
 Driven by SwiftUI's `DocumentGroup`, which gives us for free:
 - **New / Open / Save / Save As / Duplicate / Revert / Recent Files**.
+- **Reload from disk (`⌘R`)** — re-reads the open file when another program has changed it on disk; confirms first when there are unsaved edits, and is disabled for untitled documents.
 - Native open / save panels.
 - Window title shows the file name; an unsaved-changes indicator appears in the close button.
 - Standard "do you want to save?" dialog on close.
@@ -154,6 +155,7 @@ Mown/
 | Open                 | ⌘O             |
 | Save                 | ⌘S             |
 | Save As / Duplicate  | ⇧⌘S            |
+| Reload from disk     | ⌘R             |
 | Cycle view mode      | ⌘E             |
 | Find                 | ⌘F             |
 | Close window         | ⌘W             |
