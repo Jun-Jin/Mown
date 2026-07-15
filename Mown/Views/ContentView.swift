@@ -101,6 +101,8 @@ struct ContentView: View {
             .focusedSceneValue(\.setViewMode) { mode in
                 viewMode = mode
             }
+            // Enable ⌘R "Refresh" only for file-backed windows.
+            .modifier(OptionalReloadAction(fileURL: fileURL))
             // Only publish the format actions when an editor is on screen, so
             // the Format menu disables itself in preview-only mode.
             .modifier(OptionalFormatAction(actions: viewMode == .preview ? nil : editorActions))

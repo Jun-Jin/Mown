@@ -20,6 +20,12 @@ struct MownApp: App {
                 Button("New Tab") { DocumentTabbing.newTab() }
                     .keyboardShortcut("t", modifiers: .command)
             }
+            // Re-read the frontmost document from disk (⌘R) — for when another
+            // program has rewritten the open file. Disabled for untitled
+            // documents, which have nothing on disk to reload.
+            CommandGroup(after: .saveItem) {
+                ReloadDocumentMenuItem()
+            }
             // Find bar for the editor. The NSTextView already enables it
             // (`usesFindBar`); SwiftUI just doesn't ship a Find menu, so these
             // items forward the standard text-finder actions to the focused
@@ -141,6 +147,20 @@ extension FocusedValues {
     }
 }
 
+/// Action exposed by the frontmost *file-backed* document window so the ⌘R
+/// Refresh menu item reloads only the focused window — and disables itself when
+/// the focused document is untitled (nothing on disk to reload).
+struct ReloadDocumentActionKey: FocusedValueKey {
+    typealias Value = () -> Void
+}
+
+extension FocusedValues {
+    var reloadDocument: ReloadDocumentActionKey.Value? {
+        get { self[ReloadDocumentActionKey.self] }
+        set { self[ReloadDocumentActionKey.self] = newValue }
+    }
+}
+
 /// Action exposed by the frontmost editor so the global Format menu drives only
 /// the focused window's editor. Absent in preview-only mode, which disables the
 /// menu items.
@@ -182,6 +202,37 @@ struct OptionalFormatAction: ViewModifier {
         } else {
             content
         }
+    }
+}
+
+/// Publishes the ⌘R reload action as a scene value only while the focused
+/// document is backed by a file on disk, so the Refresh menu item reads `nil`
+/// (and disables) for untitled ⌘N/⌘T documents. The action targets the key
+/// window, which is the focused document window at the moment ⌘R fires.
+struct OptionalReloadAction: ViewModifier {
+    let fileURL: URL?
+
+    @ViewBuilder
+    func body(content: Content) -> some View {
+        if fileURL != nil {
+            content.focusedSceneValue(\.reloadDocument) {
+                DocumentReload.reload(window: NSApp.keyWindow)
+            }
+        } else {
+            content
+        }
+    }
+}
+
+/// The ⌘R "Refresh" File-menu item. Fires the focused window's reload action and
+/// disables when no file-backed document is focused (untitled docs, or none).
+private struct ReloadDocumentMenuItem: View {
+    @FocusedValue(\.reloadDocument) private var reload
+
+    var body: some View {
+        Button("Refresh") { reload?() }
+            .keyboardShortcut("r", modifiers: .command)
+            .disabled(reload == nil)
     }
 }
 
