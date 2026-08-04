@@ -11,7 +11,7 @@ A native macOS Markdown editor — fast, offline, zero telemetry. SwiftUI + `NST
 - **Three view modes** — Edit, Preview, Split. Toolbar control or rebindable keyboard shortcut.
 - **Markdown-aware editing** — list & blockquote continuation and Tab indent, inline toggles (bold / italic / code / strikethrough / link), block formatting (headings, blockquote, code block, horizontal rule, task checkboxes, tables), move / duplicate lines, auto-pair wrapping, and smart paste (URL over a selection → link, spreadsheet rows → table). Every Format shortcut is rebindable.
 - **Live preview** rendered through `WKWebView` using Apple's [`swift-cmark-gfm`](https://github.com/apple/swift-cmark). CommonMark + GitHub-flavored Markdown (tables, task lists, strikethrough, fenced code blocks).
-- **Code highlighting** via highlight.js, **Mermaid diagrams** via mermaid.js — both bundled, no network calls.
+- **Code highlighting** via highlight.js, **Mermaid diagrams** via mermaid.js — both bundled, no network calls. Click a diagram to open it full-size in its own window; right-click a diagram (in the preview or that window) and choose **Export Diagram As…** to save it as SVG or a 2× PNG/JPEG — the format popup in the save panel picks which (`⌘S` also works in the diagram window).
 - **TeX math** via KaTeX — inline `$…$`, display `$$…$$`, and ` ```math ` fences, typeset offline (fonts bundled). `$` inside code and currency like `$5` stay literal.
 - **Light / dark themes** — independently configurable for the editor and the preview, with a "System" mode that follows macOS appearance.
 - **Tabbed windows** — `⌘N` opens a new window, `⌘T` opens a new tab; opens from Finder / Recents join the current window as tabs.

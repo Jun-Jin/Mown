@@ -56,7 +56,15 @@ struct PreviewView: NSViewRepresentable {
         config.userContentController.add(context.coordinator,
                                          name: MermaidZoom.messageName)
 
-        let webView = WKWebView(frame: .zero, configuration: config)
+        // Right-clicking posts the SVG of the diagram under the pointer (or ""
+        // off-diagram) so the context menu can offer "Export Diagram As…".
+        // The message is sent while the page handles the DOM contextmenu event,
+        // ahead of WebKit proposing the native menu, so `willOpenMenu` in
+        // ExportMenuWebView sees the fresh value.
+        config.userContentController.add(context.coordinator,
+                                         name: MermaidExportMenu.messageName)
+
+        let webView = ExportMenuWebView(frame: .zero, configuration: config)
         webView.setValue(false, forKey: "drawsBackground") // let CSS background show through
         webView.allowsBackForwardNavigationGestures = false
         webView.navigationDelegate = context.coordinator
@@ -75,6 +83,7 @@ struct PreviewView: NSViewRepresentable {
         let coord = context.coordinator
         webView.appearance = NSAppearance(named: isDark ? .darkAqua : .aqua)
         if webView.pageZoom != CGFloat(zoom) { webView.pageZoom = CGFloat(zoom) }
+        (webView as? ExportMenuWebView)?.exportIsDark = isDark
         coord.isDark = isDark
         coord.currentZoom = zoom
         coord.onZoomChange = onZoomChange
@@ -240,6 +249,12 @@ struct PreviewView: NSViewRepresentable {
             if message.name == MermaidZoom.messageName, let svg = message.body as? String {
                 MermaidZoomWindowController.present(svg: svg, isDark: isDark,
                                                     relativeTo: message.webView?.window)
+                return
+            }
+            if message.name == MermaidExportMenu.messageName, let svg = message.body as? String {
+                // "" (right-click off-diagram) clears the previous diagram so a
+                // stale export item doesn't linger in unrelated context menus.
+                (message.webView as? ExportMenuWebView)?.exportableSVG = svg.isEmpty ? nil : svg
                 return
             }
             guard message.name == PreviewScrollBridge.messageName,

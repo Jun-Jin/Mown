@@ -19,10 +19,15 @@ final class MermaidZoomWindowController: NSWindowController, NSWindowDelegate {
     /// deallocate the moment `present` returns.
     private static var active: Set<MermaidZoomWindowController> = []
 
-    /// Local key monitor backing ⎋-to-close. A monitor (rather than relying on
-    /// the responder chain) closes the window even while the WKWebView is first
-    /// responder and would otherwise swallow the key event.
+    /// Local key monitor backing ⎋-to-close and ⌘S-to-export. A monitor
+    /// (rather than relying on the responder chain) catches the keys even
+    /// while the WKWebView is first responder and would otherwise swallow the
+    /// key event.
     private var keyMonitor: Any?
+
+    /// The diagram markup being shown, kept for export.
+    private let svg: String
+    private let isDark: Bool
 
     /// Opens a zoom window for `svg`, themed to match the preview and sized
     /// relative to its source window.
@@ -34,6 +39,8 @@ final class MermaidZoomWindowController: NSWindowController, NSWindowDelegate {
     }
 
     private init(svg: String, isDark: Bool, parent: NSWindow?) {
+        self.svg = svg
+        self.isDark = isDark
         let contentRect = Self.frame(for: parent)
         let window = NSWindow(contentRect: contentRect,
                               styleMask: [.titled, .closable, .resizable, .fullSizeContentView],
@@ -51,7 +58,11 @@ final class MermaidZoomWindowController: NSWindowController, NSWindowDelegate {
         prefs.allowsContentJavaScript = false
         config.defaultWebpagePreferences = prefs
 
-        let webView = WKWebView(frame: contentRect, configuration: config)
+        // ExportMenuWebView adds "Export Diagram As…" to the right-click
+        // menu; the whole window is one diagram, so it's always offered.
+        let webView = ExportMenuWebView(frame: contentRect, configuration: config)
+        webView.exportableSVG = svg
+        webView.exportIsDark = isDark
         webView.allowsMagnification = true       // trackpad pinch to zoom in further
         webView.setValue(false, forKey: "drawsBackground")
         webView.loadHTMLString(Self.html(svg: svg, isDark: isDark), baseURL: nil)
@@ -65,6 +76,11 @@ final class MermaidZoomWindowController: NSWindowController, NSWindowDelegate {
                 self.close()
                 return nil
             }
+            if event.modifierFlags.contains(.command),
+               event.charactersIgnoringModifiers?.lowercased() == "s" {
+                self.exportDiagram()
+                return nil
+            }
             return event
         }
     }
@@ -75,6 +91,13 @@ final class MermaidZoomWindowController: NSWindowController, NSWindowDelegate {
         if let keyMonitor { NSEvent.removeMonitor(keyMonitor) }
         keyMonitor = nil
         Self.active.remove(self)   // last strong ref → controller (and window) deallocate
+    }
+
+    /// Saves the diagram at a user-chosen location — PNG, SVG, or JPEG,
+    /// picked in the save panel. Wired to ⌘S; right-click offers the same via
+    /// `ExportMenuWebView`.
+    private func exportDiagram() {
+        MermaidDiagramExporter.export(svg: svg, isDark: isDark, from: window)
     }
 
     /// Centers a window over `parent`, sized to a comfortable fraction of it, or

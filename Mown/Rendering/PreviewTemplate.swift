@@ -194,6 +194,18 @@ enum PreviewTemplate {
                     window.webkit.messageHandlers.\(MermaidZoom.messageName).postMessage(svg.outerHTML);
                 } catch (_) {}
             });
+
+            // Tell native which diagram (if any) is under a right-click, so it
+            // can add "Export Diagram As…" to the context menu. Posting ""
+            // off-diagram clears the previous one. This message races nothing:
+            // WebKit delivers it before it proposes the menu to the app.
+            document.addEventListener('contextmenu', function (e) {
+                var node = e.target.closest ? e.target.closest('.mermaid') : null;
+                var svg = node ? node.querySelector('svg') : null;
+                try {
+                    window.webkit.messageHandlers.\(MermaidExportMenu.messageName).postMessage(svg ? svg.outerHTML : '');
+                } catch (_) {}
+            });
         })();
         </script>
         </body>
