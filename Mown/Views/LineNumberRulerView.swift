@@ -22,7 +22,11 @@ final class LineNumberRulerView: NSRulerView {
             observers.append(NotificationCenter.default.addObserver(
                 forName: NSTextStorage.didProcessEditingNotification,
                 object: storage, queue: .main
-            ) { [weak self] _ in self?.refresh() })
+            ) { [weak self] _ in
+                // Fires mid-`processEditing`; resizing the ruler here forces
+                // layout against the mid-edit storage. Defer until it settles.
+                DispatchQueue.main.async { self?.refresh() }
+            })
         }
         textView.postsFrameChangedNotifications = true
         observers.append(NotificationCenter.default.addObserver(
@@ -69,8 +73,10 @@ final class LineNumberRulerView: NSRulerView {
         gutterRect.fill()
 
         let visibleRect = scrollView.contentView.bounds
-        let visibleGlyphRange = layoutManager.glyphRange(forBoundingRect: visibleRect,
-                                                         in: textContainer)
+        // Clamp: `glyphRange(forBoundingRect:)` can be stale after a deletion.
+        let visibleGlyphRange = NSIntersectionRange(
+            layoutManager.glyphRange(forBoundingRect: visibleRect, in: textContainer),
+            NSRange(location: 0, length: layoutManager.numberOfGlyphs))
         let visibleCharRange = layoutManager.characterRange(forGlyphRange: visibleGlyphRange,
                                                             actualGlyphRange: nil)
 
@@ -89,6 +95,8 @@ final class LineNumberRulerView: NSRulerView {
             (fragmentRect, _, _, glyphRange, _) in
             let charRange = layoutManager.characterRange(forGlyphRange: glyphRange,
                                                          actualGlyphRange: nil)
+            // Mid-edit, the range can point past the shortened string.
+            guard charRange.location <= content.length else { return }
             let isLogicalLineStart = charRange.location == 0 ||
                 content.character(at: charRange.location - 1) == 0x0A // '\n'
 
