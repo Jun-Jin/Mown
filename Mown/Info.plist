@@ -39,9 +39,12 @@
             <string>Editor</string>
             <key>LSHandlerRank</key>
             <string>Default</string>
+            <key>CFBundleTypeIconFile</key>
+            <string>AppIcon</string>
             <key>LSItemContentTypes</key>
             <array>
                 <string>net.daringfireball.markdown</string>
+                <string>public.markdown</string>
                 <string>public.plain-text</string>
             </array>
             <key>NSDocumentClass</key>
