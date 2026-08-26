@@ -191,12 +191,10 @@ private final class WindowConfiguringView: NSView {
 
 /// Builds a tab label of the document's file icon followed by its name, so every
 /// tab renders consistently as "icon filename". A `nil` url (an untitled
-/// document) gets a generic document icon and the name "Untitled".
+/// document) gets the same icon and the name "Untitled".
 private func tabTitle(for url: URL?) -> NSAttributedString {
     let name = url?.lastPathComponent ?? "Untitled"
-    let icon = url.map { NSWorkspace.shared.icon(forFile: $0.path) }
-        ?? NSWorkspace.shared.icon(for: .plainText)
-    icon.size = NSSize(width: 14, height: 14)
+    let icon = documentIcon(size: 14)
 
     let attachment = NSTextAttachment()
     attachment.image = icon
