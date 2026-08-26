@@ -34,9 +34,7 @@ final class RecentDocumentsMenuController: NSObject, NSMenuDelegate {
                                   keyEquivalent: "")
             item.target = self
             item.representedObject = url
-            let icon = NSWorkspace.shared.icon(forFile: url.path)
-            icon.size = NSSize(width: 16, height: 16)
-            item.image = icon
+            item.image = documentIcon(size: 16)
             menu.addItem(item)
         }
 
