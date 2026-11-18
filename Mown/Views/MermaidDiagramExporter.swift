@@ -2,39 +2,6 @@ import AppKit
 import UniformTypeIdentifiers
 import WebKit
 
-/// Shared constant for the script message the preview posts on right-click,
-/// carrying the SVG of the Mermaid diagram under the pointer (or "" when the
-/// click wasn't on a diagram). Mirrors the `MermaidZoom` pattern so the
-/// page-side JS (in `PreviewTemplate`) and the native handler registration
-/// (in `PreviewView`) can't drift apart.
-enum MermaidExportMenu {
-    static let messageName = "mownMermaidContext"
-}
-
-/// A `WKWebView` whose context menu offers "Export Diagram As…" whenever
-/// `exportableSVG` is set. The preview updates that per right-click from the
-/// page's `contextmenu` message; the zoom window sets it once, since its whole
-/// content is one diagram.
-final class ExportMenuWebView: WKWebView {
-    var exportableSVG: String?
-    var exportIsDark = false
-
-    override func willOpenMenu(_ menu: NSMenu, with event: NSEvent) {
-        super.willOpenMenu(menu, with: event)
-        guard let svg = exportableSVG, !svg.isEmpty else { return }
-        menu.addItem(.separator())
-        let item = NSMenuItem(title: "Export Diagram As…",
-                              action: #selector(exportDiagram(_:)), keyEquivalent: "")
-        item.target = self
-        menu.addItem(item)
-    }
-
-    @objc private func exportDiagram(_ sender: Any?) {
-        guard let svg = exportableSVG, !svg.isEmpty else { return }
-        MermaidDiagramExporter.export(svg: svg, isDark: exportIsDark, from: window)
-    }
-}
-
 /// The file formats a diagram can be exported as. Order is the save panel's
 /// popup order; PNG leads as the default.
 enum MermaidExportFormat: CaseIterable {
@@ -72,6 +39,7 @@ enum MermaidExportFormat: CaseIterable {
 
 /// The save-panel → render → write flow shared by every export entry point
 /// (the preview's context menu, and the zoom window's context menu and ⌘S).
+/// `copy` is the clipboard twin used by "Copy Image" and the zoom window's ⌘C.
 /// The panel carries the standard macOS "Format:" popup (as in TextEdit or
 /// Preview) for choosing PNG, SVG, or JPEG.
 enum MermaidDiagramExporter {
@@ -154,9 +122,18 @@ enum MermaidDiagramExporter {
     }
 
     private static func presentError(_ error: Error, in window: NSWindow?) {
-        let alert = NSAlert(error: error)
-        alert.messageText = "Export Failed"
-        if let window { alert.beginSheetModal(for: window) } else { alert.runModal() }
+        presentAlert(error, title: "Export Failed", in: window)
+    }
+
+    /// Rasterizes the diagram exactly like the PNG export and puts it on the
+    /// general pasteboard (PNG + TIFF), for ⌘V into any app.
+    static func copy(svg: String, isDark: Bool, window: NSWindow?) {
+        MermaidBitmapRenderer.render(svg: svg, isDark: isDark) { result in
+            switch result {
+            case .success(let rep): ImageClipboard.write(bitmap: rep)
+            case .failure(let error): presentAlert(error, title: "Copy Failed", in: window)
+            }
+        }
     }
 
     /// The save panel's "Format:" accessory. Selecting a format retargets the

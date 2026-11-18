@@ -56,15 +56,15 @@ struct PreviewView: NSViewRepresentable {
         config.userContentController.add(context.coordinator,
                                          name: MermaidZoom.messageName)
 
-        // Right-clicking posts the SVG of the diagram under the pointer (or ""
-        // off-diagram) so the context menu can offer "Export Diagram As…".
-        // The message is sent while the page handles the DOM contextmenu event,
-        // ahead of WebKit proposing the native menu, so `willOpenMenu` in
-        // ExportMenuWebView sees the fresh value.
+        // Right-clicking posts what's under the pointer (a diagram's SVG, an
+        // image's URL, or nothing) so the context menu can offer "Copy Image"
+        // and "Export Diagram As…". The message is sent while the page handles
+        // the DOM contextmenu event, ahead of WebKit proposing the native menu,
+        // so `willOpenMenu` in PreviewContextWebView sees the fresh value.
         config.userContentController.add(context.coordinator,
-                                         name: MermaidExportMenu.messageName)
+                                         name: PreviewContextMenu.messageName)
 
-        let webView = ExportMenuWebView(frame: .zero, configuration: config)
+        let webView = PreviewContextWebView(frame: .zero, configuration: config)
         webView.setValue(false, forKey: "drawsBackground") // let CSS background show through
         webView.allowsBackForwardNavigationGestures = false
         webView.navigationDelegate = context.coordinator
@@ -83,7 +83,7 @@ struct PreviewView: NSViewRepresentable {
         let coord = context.coordinator
         webView.appearance = NSAppearance(named: isDark ? .darkAqua : .aqua)
         if webView.pageZoom != CGFloat(zoom) { webView.pageZoom = CGFloat(zoom) }
-        (webView as? ExportMenuWebView)?.exportIsDark = isDark
+        (webView as? PreviewContextWebView)?.isDarkTheme = isDark
         coord.isDark = isDark
         coord.currentZoom = zoom
         coord.onZoomChange = onZoomChange
@@ -187,13 +187,9 @@ struct PreviewView: NSViewRepresentable {
         /// handled page-side and shouldn't reach here).
         private func resolvedFileURL(for url: URL) -> URL? {
             if url.isFileURL { return url }
-            guard url.scheme == PreviewSchemeHandler.scheme, url.host == "doc",
-                  let dir = schemeHandler.docDirectory else { return nil }
-            let rel = url.path.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
-            guard !rel.isEmpty else { return nil }
-            let candidate = dir.appendingPathComponent(rel).standardized
-            // Refuse paths that escape the document's directory via `..`.
-            guard candidate.path.hasPrefix(dir.standardized.path) else { return nil }
+            guard let candidate = schemeHandler.fileURL(forDocURL: url),
+                  candidate.standardized.path != schemeHandler.docDirectory?.standardized.path
+            else { return nil }   // bare doc root = pure `#fragment`
             return candidate
         }
 
@@ -251,10 +247,11 @@ struct PreviewView: NSViewRepresentable {
                                                     relativeTo: message.webView?.window)
                 return
             }
-            if message.name == MermaidExportMenu.messageName, let svg = message.body as? String {
-                // "" (right-click off-diagram) clears the previous diagram so a
-                // stale export item doesn't linger in unrelated context menus.
-                (message.webView as? ExportMenuWebView)?.exportableSVG = svg.isEmpty ? nil : svg
+            if message.name == PreviewContextMenu.messageName {
+                // An empty body (right-click on plain content) clears the
+                // previous target so stale items don't linger in unrelated menus.
+                (message.webView as? PreviewContextWebView)?.contextTarget
+                    = PreviewContextMenu.target(from: message.body)
                 return
             }
             guard message.name == PreviewScrollBridge.messageName,
@@ -371,15 +368,7 @@ final class PreviewSchemeHandler: NSObject, WKURLSchemeHandler {
                 ? nil
                 : Bundle.main.url(forResource: name, withExtension: ext.isEmpty ? nil : ext)
         case "doc":
-            // Relative path under the document's directory; refuse anything
-            // that escapes via `..` after normalization.
-            if let dir = docDirectory {
-                let rel = url.path.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
-                let candidate = dir.appendingPathComponent(rel).standardized
-                resolvedURL = candidate.path.hasPrefix(dir.standardized.path) ? candidate : nil
-            } else {
-                resolvedURL = nil
-            }
+            resolvedURL = fileURL(forDocURL: url)
         default:
             resolvedURL = nil
         }
@@ -400,6 +389,16 @@ final class PreviewSchemeHandler: NSObject, WKURLSchemeHandler {
     }
 
     func webView(_ webView: WKWebView, stop urlSchemeTask: WKURLSchemeTask) {}
+
+    /// The file a `mownres://doc/<relative/path>` URL is served from: the path
+    /// under `docDirectory`, after refusing anything that escapes it via `..`.
+    /// `nil` for other hosts/schemes or when no document directory is set.
+    func fileURL(forDocURL url: URL) -> URL? {
+        guard url.scheme == Self.scheme, url.host == "doc", let dir = docDirectory else { return nil }
+        let rel = url.path.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
+        let candidate = dir.appendingPathComponent(rel).standardized
+        return candidate.path.hasPrefix(dir.standardized.path) ? candidate : nil
+    }
 
     /// Resolve a MIME type for the WKWebView. Falls back to UTType so we don't
     /// have to hand-maintain a long list of image formats.

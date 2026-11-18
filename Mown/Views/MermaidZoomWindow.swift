@@ -19,7 +19,7 @@ final class MermaidZoomWindowController: NSWindowController, NSWindowDelegate {
     /// deallocate the moment `present` returns.
     private static var active: Set<MermaidZoomWindowController> = []
 
-    /// Local key monitor backing ⎋-to-close and ⌘S-to-export. A monitor
+    /// Local key monitor backing ⎋-to-close, ⌘S-to-export and ⌘C-to-copy. A monitor
     /// (rather than relying on the responder chain) catches the keys even
     /// while the WKWebView is first responder and would otherwise swallow the
     /// key event.
@@ -58,11 +58,12 @@ final class MermaidZoomWindowController: NSWindowController, NSWindowDelegate {
         prefs.allowsContentJavaScript = false
         config.defaultWebpagePreferences = prefs
 
-        // ExportMenuWebView adds "Export Diagram As…" to the right-click
-        // menu; the whole window is one diagram, so it's always offered.
-        let webView = ExportMenuWebView(frame: contentRect, configuration: config)
-        webView.exportableSVG = svg
-        webView.exportIsDark = isDark
+        // PreviewContextWebView adds "Copy Image" / "Export Diagram As…" to
+        // the right-click menu; the whole window is one diagram, so it's
+        // always offered.
+        let webView = PreviewContextWebView(frame: contentRect, configuration: config)
+        webView.contextTarget = .diagram(svg: svg)
+        webView.isDarkTheme = isDark
         webView.allowsMagnification = true       // trackpad pinch to zoom in further
         webView.setValue(false, forKey: "drawsBackground")
         webView.loadHTMLString(Self.html(svg: svg, isDark: isDark), baseURL: nil)
@@ -76,10 +77,12 @@ final class MermaidZoomWindowController: NSWindowController, NSWindowDelegate {
                 self.close()
                 return nil
             }
-            if event.modifierFlags.contains(.command),
-               event.charactersIgnoringModifiers?.lowercased() == "s" {
-                self.exportDiagram()
-                return nil
+            if event.modifierFlags.contains(.command) {
+                switch event.charactersIgnoringModifiers?.lowercased() {
+                case "s": self.exportDiagram(); return nil
+                case "c": self.copyDiagram(); return nil
+                default: break
+                }
             }
             return event
         }
@@ -95,9 +98,15 @@ final class MermaidZoomWindowController: NSWindowController, NSWindowDelegate {
 
     /// Saves the diagram at a user-chosen location — PNG, SVG, or JPEG,
     /// picked in the save panel. Wired to ⌘S; right-click offers the same via
-    /// `ExportMenuWebView`.
+    /// `PreviewContextWebView`.
     private func exportDiagram() {
         MermaidDiagramExporter.export(svg: svg, isDark: isDark, from: window)
+    }
+
+    /// Puts the diagram on the clipboard as a bitmap. Wired to ⌘C; right-click
+    /// offers the same "Copy Image".
+    private func copyDiagram() {
+        MermaidDiagramExporter.copy(svg: svg, isDark: isDark, window: window)
     }
 
     /// Centers a window over `parent`, sized to a comfortable fraction of it, or

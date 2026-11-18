@@ -195,15 +195,21 @@ enum PreviewTemplate {
                 } catch (_) {}
             });
 
-            // Tell native which diagram (if any) is under a right-click, so it
-            // can add "Export Diagram As…" to the context menu. Posting ""
-            // off-diagram clears the previous one. This message races nothing:
-            // WebKit delivers it before it proposes the menu to the app.
+            // Tell native what's under a right-click — a diagram (its SVG) or
+            // an <img> (its resolved URL) — so it can add "Copy Image" and
+            // "Export Diagram As…" to the context menu. Posting {} elsewhere
+            // clears the previous target. This message races nothing: WebKit
+            // delivers it before it proposes the menu to the app.
             document.addEventListener('contextmenu', function (e) {
-                var node = e.target.closest ? e.target.closest('.mermaid') : null;
+                var closest = function (sel) { return e.target.closest ? e.target.closest(sel) : null; };
+                var node = closest('.mermaid');
                 var svg = node ? node.querySelector('svg') : null;
+                var img = svg ? null : closest('img');
+                var payload = svg ? { kind: 'diagram', svg: svg.outerHTML }
+                            : img ? { kind: 'image', src: img.currentSrc || img.src }
+                            : {};
                 try {
-                    window.webkit.messageHandlers.\(MermaidExportMenu.messageName).postMessage(svg ? svg.outerHTML : '');
+                    window.webkit.messageHandlers.\(PreviewContextMenu.messageName).postMessage(payload);
                 } catch (_) {}
             });
         })();
